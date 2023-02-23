@@ -1,28 +1,30 @@
+// Example: define member function without argument within the class
+
 #include<iostream>
 using namespace std;
 
-class human
+class Person
 {
 	int id;
 	char name[100];
 	
 	public:
-		void set_human()
+		void set_p()
 		{
-			cout<<"Enter the student Id:";
+			cout<<"Enter the Id:";
 			cin>>id;
 			fflush(stdin);
-			cout<<"Enter the student Name:";
+			cout<<"Enter the Name:";
 			cin.get(name,100);
 		}
 	
-		void display_human()
+		void display_p()
 		{
 			cout<<endl<<id<<"\t"<<name<<"\t";
 		}
 };
 
-class Student: private human
+class Student: private Person
 {
 	char course[50];
 	int fee;
@@ -30,7 +32,7 @@ class Student: private human
 	public:
 	void set_s()
 		{
-			set_human();
+			set_p();
 			cout<<"Enter the Course Name:";
 			fflush(stdin);
 			cin.getline(course,50);
@@ -40,7 +42,7 @@ class Student: private human
 		
 		void display_s()
 		{
-			display_human();
+			display_p();
 			cout<<course<<"\t"<<fee<<endl;
 		}
 };
