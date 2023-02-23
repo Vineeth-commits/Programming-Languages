@@ -1,10 +1,12 @@
 #include <stdio.h>
 
-int main(void)
-{
-    int counter = 0;
+int main() {
+  int a = 10;
 
-    do {
-        printf("The value of the counter is %d\n", counter);
-    } while (++counter <= 10);
+  do {
+    printf("value of a : %d\n", a);
+    a++;
+  } while(a < 20);
+
+  return 0;
 }

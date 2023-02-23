@@ -1,20 +1,25 @@
-/* program to study the bitwise operation of the c programming language */
 #include <stdio.h>
 
-/* function main begin program execution */
-int main(void)
-{
-    char b1 = 0b00000010;
-    char b2 = 0b00000011;
-    char b30, b31, b32;
+int main() {
+  unsigned int a = 60; // 60 = 0011 1100
+  unsigned int b = 13; // 13 = 0000 1101
+  int c = 0;
 
-    b30 = 0 & b2; /* bitwise OR*/
-    printf("the value of b30 is %d\n", b30);
+  c = a & b; // 12 = 0000 1100
+  printf("Value of c is %d\n", c);
 
-    b31 = (b2 >> 2) & 0b00000001;
-    printf("the value of b31 is %d\n", b31);
+  c = a | b; // 61 = 0011 1101
+  printf("value of c is %d\n", c);
 
-    b32 = (b2 >> 1) & 0b00000001;
-    printf("the value of b32 is %d\n", b32);
+  c = a ^ b; // 49 = 0011 0001
+  printf("value of c is %d\n", c);
 
-}/* end of the main function */
+  c = ~a; // -61 = 1100 0011
+  printf("value of c is %d\n", c);
+
+  c = a << 2; // 240 = 1111 0000
+  printf("value of c is %d\n", c);
+
+  c = a >> 2; // 15 = 0000 1111
+  printf("value of c is %d\n", c);
+}
