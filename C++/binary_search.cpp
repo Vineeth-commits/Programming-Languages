@@ -1,23 +1,27 @@
-//User function template for C++
-#include<bits/stdc++.h>
+#include <iostream>
 using namespace std;
-
-class Solution{
-public:
-    int binarysearch(int arr[], int n, int k){
-        // code here
-        int l = 0,h = n-1;
-        int mid ;
-        while(l<=h){
-            mid = l+(h-l)/2;
-            if(arr[mid]==k)return mid;
-            else if(arr[mid]>k){
-                h = mid-1;
-            }
-            else{
-                l = mid+1;
-            }
+int BinarySearch(int arr[],int size,int key){
+    int start = 0;
+    int end = size-1;
+    int mid;
+    while(start<=end){
+        mid = (start+end)/2;
+        if(key==arr[mid]){
+            return mid;
         }
-        return -1;
+        if(key>arr[mid]){
+            start = mid+1;
+        }else{
+            end=mid-1;
+        }
     }
-};
+    return -2;
+}
+
+int main() {
+	int arr[5] = {1,2,3,4,5};
+	int y = BinarySearch(arr,5,25);
+	cout<<"Element found at : "<<y+1<<endl;
+	
+	return 0;
+}
