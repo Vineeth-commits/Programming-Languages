@@ -1,4 +1,4 @@
-for i in range(1, 5):
+for i in range(1,11):
+    if i == 5:
+        break
     print(i)
-else:
-    print('The for loop is over')
