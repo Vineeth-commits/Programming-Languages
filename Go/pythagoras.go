@@ -1,35 +1,18 @@
-package main
+package pythagoras
 
 import (
-	"fmt"
 	"math"
-	"os"
-	"strconv"
 )
 
-func q(a float64) float64 {
-	return a * a
+// Vector defines a tuple with 3 values in 3d-space
+type Vector struct {
+	x float64
+	y float64
+	z float64
 }
 
-func main() {
-	if len(os.Args) == 4 {
-		switch "?" {
-		case os.Args[1]:
-			b, _ := strconv.ParseFloat(os.Args[2], 0)
-			c, _ := strconv.ParseFloat(os.Args[3], 0)
-			fmt.Println(math.Sqrt(q(float64(c)) - q(float64(b))))
-		case os.Args[2]:
-			a, _ := strconv.ParseFloat(os.Args[1], 0)
-			c, _ := strconv.ParseFloat(os.Args[3], 0)
-			fmt.Println(math.Sqrt(q(float64(c)) - q(float64(a))))
-		case os.Args[3]:
-			a, _ := strconv.ParseFloat(os.Args[1], 0)
-			b, _ := strconv.ParseFloat(os.Args[2], 0)
-			fmt.Println(math.Sqrt(q(float64(a)) + q(float64(b))))
-		default:
-			fmt.Println("one of the arguments have to be a \"?\"")
-		}
-	} else {
-		fmt.Println("this app needs 3 arguments")
-	}
+// Distance calculates the distance between to vectors with the   Pythagoras theorem
+func Distance(a, b Vector) float64 {
+	res := math.Pow(b.x-a.x, 2.0) + math.Pow(b.y-a.y, 2.0) + math.Pow(b.z-a.z, 2.0)
+	return math.Sqrt(res)
 }

@@ -1,45 +1,21 @@
-package main
+package dynamic
 
-// import required modules
-import (
-	"flag"
-	"fmt"
-	"strconv"
-	"time"
-)
+// https://www.geeksforgeeks.org/program-for-nth-fibonacci-number/
 
-var x uint64
-
-func main() {
-	start := time.Now()
-	flag.Parse()
-	s := flag.Arg(0)
-
-	if s == "" {
-		s = "140"
+// NthFibonacci returns the nth Fibonacci Number
+func NthFibonacci(n uint) uint {
+	if n == 0 {
+		return 0
 	}
 
-	x, err := strconv.ParseUint(s, 10, 0)
+	// n1 and n2 are the (i-1)th and ith Fibonacci numbers, respectively
+	var n1, n2 uint = 0, 1
 
-	if err != nil {
-		fmt.Println(err)
-		x = 40
+	for i := uint(1); i < n; i++ {
+		n3 := n1 + n2
+		n1 = n2
+		n2 = n3
 	}
 
-	fibonacci(x)
-	elapsed := time.Since(start)
-	fmt.Println("\ntime:", elapsed)
-}
-
-func fibonacci(n uint64) {
-	var a uint64 = 0
-	var b uint64 = 1
-	var i uint64
-	var sum uint64
-	for i = 0; i < n; i++ {
-		fmt.Println(a)
-		sum = a + b
-		a = b
-		b = sum
-	}
+	return n2
 }
