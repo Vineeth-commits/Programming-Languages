@@ -1,58 +1,136 @@
 using System;
 using System.Collections.Generic;
-using DataStructures.Graph;
 
-namespace Algorithms.Graph
+class BreadthFirstSearch
 {
-    /// <summary>
-    /// Breadth First Search - algorithm for traversing graph.
-    /// Algorithm starts from root node that is selected by the user.
-    /// Algorithm explores all nodes at the present depth.
-    /// </summary>
-    /// <typeparam name="T">Vertex data type.</typeparam>
-    public class BreadthFirstSearch<T> : IGraphSearch<T> where T : IComparable<T>
+    //Iterative
+    public static List<int> breathFirstSearch(Node currentNode)
     {
-        /// <summary>
-        /// Traverses graph from start vertex.
-        /// </summary>
-        /// <param name="graph">Graph instance.</param>
-        /// <param name="startVertex">Vertex that search starts from.</param>
-        /// <param name="action">Action that needs to be executed on each graph vertex.</param>
-        public void VisitAll(IDirectedWeightedGraph<T> graph, Vertex<T> startVertex, Action<Vertex<T>>? action = default)
+        List<int> list = new List<int>();
+        Queue<Node> queue = new Queue<Node>();
+        queue.Enqueue(currentNode);
+
+        while (queue.Count > 0)
         {
-            Bfs(graph, startVertex, action, new HashSet<Vertex<T>>());
+            currentNode = queue.Dequeue();
+            list.Add(currentNode.value);
+            if (currentNode.left != null)
+            {
+                queue.Enqueue(currentNode.left);
+            }
+
+            if (currentNode.right != null)
+            {
+                queue.Enqueue(currentNode.right);
+            }
+        }
+        return list;
+    }
+    //Recurcive
+    public static List<int> breathFirstSearchR(Queue<Node> queue, List<int> list)
+    {
+        if (queue.Count == 0)
+        {
+            return list;
         }
 
-        /// <summary>
-        /// Traverses graph from start vertex.
-        /// </summary>
-        /// <param name="graph">Graph instance.</param>
-        /// <param name="startVertex">Vertex that search starts from.</param>
-        /// <param name="action">Action that needs to be executed on each graph vertex.</param>
-        /// <param name="visited">Hash set with visited vertices.</param>
-        private void Bfs(IDirectedWeightedGraph<T> graph, Vertex<T> startVertex, Action<Vertex<T>>? action, HashSet<Vertex<T>> visited)
+        var currentNode = queue.Dequeue();
+        list.Add(currentNode.value);
+        if (currentNode.left != null)
         {
-            var queue = new Queue<Vertex<T>>();
+            queue.Enqueue(currentNode.left);
+        }
 
-            queue.Enqueue(startVertex);
+        if (currentNode.right != null)
+        {
+            queue.Enqueue(currentNode.right);
+        }
 
-            while (queue.Count > 0)
+        return breathFirstSearchR(queue, list);
+    }
+
+    static void Main(string[] args)
+    {
+        BinarySearchTree tree = new BinarySearchTree();
+        tree.insert(9);
+        tree.insert(4);
+        tree.insert(6);
+        tree.insert(20);
+        tree.insert(170);
+        tree.insert(15);
+        tree.insert(1);
+
+        var result = breathFirstSearch(tree.root);
+        foreach (var item in result)
+        {
+            Console.Write(item.ToString() + " ");
+        }
+        Console.WriteLine();
+
+        //Recurcive call
+        List<int> list = new List<int>();
+        Queue<Node> queue = new Queue<Node>();
+        queue.Enqueue(tree.root);
+        var result2 = breathFirstSearchR(queue, list);
+        foreach (var item in result2)
+        {
+            Console.Write(item.ToString() + " ");
+        }
+        Console.WriteLine();
+    }
+}
+
+class Node
+{
+    public Node left { get; set; }
+    public Node right { get; set; }
+    public int value { get; set; }
+
+    public Node(int value)
+    {
+        this.left = null;
+        this.right = null;
+        this.value = value;
+    }
+}
+
+class BinarySearchTree
+{
+    public Node root;
+    public BinarySearchTree()
+    {
+        this.root = null;
+    }
+
+    public void insert(int value)
+    {
+        Node newNode = new Node(value);
+        if (this.root == null)
+        {
+            this.root = newNode;
+            return;
+        }
+
+        Node currentNode = this.root;
+        while (true)
+        {
+            if (currentNode.value > value)
             {
-                var currentVertex = queue.Dequeue();
-
-                if (currentVertex == null || visited.Contains(currentVertex))
+                if (currentNode.left == null)
                 {
-                    continue;
+                    currentNode.left = new Node(value);
+                    return;
                 }
-
-                foreach (var vertex in graph.GetNeighbors(currentVertex))
+                currentNode = currentNode.left;
+            }
+            else
+            {
+                if (currentNode.right == null)
                 {
-                    queue.Enqueue(vertex!);
+                    currentNode.right = new Node(value);
+                    return;
                 }
-
-                action?.Invoke(currentVertex);
-
-                visited.Add(currentVertex);
+                currentNode = currentNode.right;
             }
         }
     }

@@ -1,107 +1,88 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Algorithms.Sorters.Integer
+namespace Algorithms.Sorting
 {
     /// <summary>
-    ///     Class that implements bucket sort algorithm.
+    /// Only support IList<int> Sort
     /// </summary>
-    public class BucketSorter : IIntegerSorter
+    public static class BucketSorter
     {
-        private const int NumOfDigitsInBase10 = 10;
+        public static void BucketSort(this IList<int> collection)
+        {
+            collection.BucketSortAscending();
+        }
 
         /// <summary>
-        ///     Sorts array elements using BucketSort Algorithm.
+        /// Public API: Sorts ascending
         /// </summary>
-        /// <param name="array">Array to sort.</param>
-        public void Sort(int[] array)
+        public static void BucketSortAscending(this IList<int> collection)
         {
-            if (array.Length <= 1)
+            int maxValue = collection.Max();
+            int minValue = collection.Min();
+            
+            List<int>[] bucket = new List<int>[maxValue - minValue + 1];
+
+            for (int i = 0; i < bucket.Length; i++)
             {
-                return;
+                bucket[i] = new List<int>();
             }
 
-            // store maximum number of digits in numbers to sort
-            var totalDigits = NumberOfDigits(array);
+            foreach (int i in collection) {
+                bucket[i - minValue].Add(i);
+            }
 
-            // bucket array where numbers will be placed
-            var buckets = new int[NumOfDigitsInBase10, array.Length + 1];
-
-            // go through all digit places and sort each number
-            // according to digit place value
-            for (var pass = 1; pass <= totalDigits; pass++)
-            {
-                DistributeElements(array, buckets, pass); // distribution pass
-                CollectElements(array, buckets); // gathering pass
-
-                if (pass != totalDigits)
+            int k = 0;
+            foreach (List<int> i in bucket) {
+                if (i.Count > 0)
                 {
-                    EmptyBucket(buckets); // set size of buckets to 0
+                    foreach (int j in i) 
+                    {
+                        collection[k] = j;
+                        k++;
+                    }
                 }
             }
         }
 
         /// <summary>
-        ///     Determines the number of digits in the largest number.
+        /// Public API: Sorts descending
         /// </summary>
-        /// <param name="array">Input array.</param>
-        /// <returns>Number of digits.</returns>
-        private static int NumberOfDigits(IEnumerable<int> array) => (int)Math.Floor(Math.Log10(array.Max()) + 1);
-
-        /// <summary>
-        ///     To distribute elements into buckets based on specified digit.
-        /// </summary>
-        /// <param name="data">Input array.</param>
-        /// <param name="buckets">Array of buckets.</param>
-        /// <param name="digit">Digit.</param>
-        private static void DistributeElements(IEnumerable<int> data, int[,] buckets, int digit)
+        public static void BucketSortDescending(this IList<int> collection)
         {
-            // determine the divisor used to get specific digit
-            var divisor = (int)Math.Pow(10, digit);
-
-            foreach (var element in data)
+            int maxValue = collection[0];
+            int minValue = collection[0];
+            for (int i = 1; i < collection.Count; i++)
             {
-                // bucketNumber example for hundreds digit:
-                // ( 1234 % 1000 ) / 100 --> 2
-                var bucketNumber = NumOfDigitsInBase10 * (element % divisor) / divisor;
+                if (collection[i] > maxValue)
+                    maxValue = collection[i];
 
-                // retrieve value in pail[ bucketNumber , 0 ] to
-                // determine the location in row to store element
-                var elementNumber = ++buckets[bucketNumber, 0]; // location in bucket to place element
-                buckets[bucketNumber, elementNumber] = element;
+                if (collection[i] < minValue)
+                    minValue = collection[i];
             }
-        }
+            List<int>[] bucket = new List<int>[maxValue - minValue + 1];
 
-        /// <summary>
-        ///     Return elements to original array.
-        /// </summary>
-        /// <param name="data">Input array.</param>
-        /// <param name="buckets">Array of buckets.</param>
-        private static void CollectElements(IList<int> data, int[,] buckets)
-        {
-            var subscript = 0; // initialize location in data
-
-            // loop over buckets
-            for (var i = 0; i < NumOfDigitsInBase10; i++)
+            for (int i = 0; i < bucket.Length; i++)
             {
-                // loop over elements in each bucket
-                for (var j = 1; j <= buckets[i, 0]; j++)
+                bucket[i] = new List<int>();
+            }
+
+            foreach (int i in collection)
+            {
+                bucket[i - minValue].Add(i);
+            }
+
+            int k = collection.Count-1;
+            foreach (List<int> i in bucket)
+            {
+                if (i.Count > 0)
                 {
-                    data[subscript++] = buckets[i, j]; // add element to array
+                    foreach (int j in i)
+                    {
+                        collection[k] = j;
+                        k--;
+                    }
                 }
-            }
-        }
-
-        /// <summary>
-        ///     Sets size of all buckets to zero.
-        /// </summary>
-        /// <param name="buckets">Array of buckets.</param>
-        private static void EmptyBucket(int[,] buckets)
-        {
-            for (var i = 0; i < NumOfDigitsInBase10; i++)
-            {
-                buckets[i, 0] = 0; // set size of bucket to 0
             }
         }
     }

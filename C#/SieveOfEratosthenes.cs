@@ -1,71 +1,58 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
 
-namespace Algorithms.Other
+/***
+* Generates all prime numbers up to a given number
+* Wikipedia: https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+*/
+
+
+namespace Algorithms.Numeric
 {
-    /// <summary>
-    ///     Implements the Sieve of Eratosthenes.
-    /// </summary>
-    public class SieveOfEratosthenes
+    public static class SieveOfEratosthenes
     {
-        private readonly bool[] primes;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="SieveOfEratosthenes"/> class.
-        /// Uses the Sieve of Eratosthenes to precalculate the primes from 0 up to maximumNumberToCheck.
-        /// Requires enough memory to allocate maximumNumberToCheck bytes.
-        /// https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes .
+        /// Calculate primes up to a given number
         /// </summary>
-        /// <param name="maximumNumberToCheck">long which specifies the largest number you wish to know if it is prime.</param>
-        public SieveOfEratosthenes(long maximumNumberToCheck)
+        public static IEnumerable<int> GeneratePrimesUpTo(int x)
         {
-            primes = new bool[maximumNumberToCheck + 1];
 
-            // initialize primes array
-            Array.Fill(this.primes, true, 2, primes.Length - 2);
+            //The hash of primes that will be returned
+            var primes = new HashSet<int>();
 
-            for(long i = 2; i * i <= maximumNumberToCheck; i++)
+            //Returns an empty list if x is a value under 2
+            if (x < 2)
             {
-                if (!primes[i])
-                {
-                    continue;
-                }
+                return primes.ToList();
+            }
 
-                for(long composite = i * i; composite <= maximumNumberToCheck; composite += i)
+            //Adds every number between 2 and x to the hashset
+            for (int i = 2; i <= x; i++)
+            {
+                primes.Add(i);
+            }
+
+            //integer that all multiples of will be removed from the hashset
+            int removeMultiplesOf;
+
+            //Finds the next number that hasn't been removed and removes all multiples of that number 
+            //from the hashset
+            for (int i = 2; i <= Math.Sqrt(x); i++)
+            {
+                if (primes.Contains(i))
                 {
-                    primes[composite] = false;
+                    removeMultiplesOf = i;
+                    for (int j = removeMultiplesOf * removeMultiplesOf; j <= x; j += removeMultiplesOf)
+                    {
+                        primes.Remove(j);
+                    }
                 }
             }
+
+            //The list of primes is returned
+            return primes.ToList();
         }
 
-        /// <summary>
-        /// Gets the maximumNumberToCheck the class was instantiated with.
-        /// </summary>
-        public long MaximumNumber => primes.Length - 1;
-
-        /// <summary>
-        /// Returns a boolean indicating whether the number is prime.
-        /// </summary>
-        /// <param name="numberToCheck">The number you desire to know if it is prime or not.</param>
-        /// <returns>A boolean indicating whether the number is prime or not.</returns>
-        public bool IsPrime(long numberToCheck) => primes[numberToCheck];
-
-        /// <summary>
-        /// Returns an IEnumerable of long primes in asending order.
-        /// </summary>
-        /// <returns>Primes in ascending order.</returns>
-        public IEnumerable<long> GetPrimes()
-        {
-            for(long i = 2; i < primes.Length; i++)
-            {
-                if (primes[i])
-                {
-                    yield return i;
-                }
-            }
-        }
     }
 }

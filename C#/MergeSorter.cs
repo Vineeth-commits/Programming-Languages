@@ -1,66 +1,83 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using Algorithms.Common;
 
-namespace Algorithms.Sorters.Comparison
+namespace Algorithms.Sorting
 {
-    /// <summary>
-    ///     Divide and Conquer algorithm, which splits
-    ///     array in two halves, calls itself for the two
-    ///     halves and then merges the two sorted halves.
-    /// </summary>
-    /// <typeparam name="T">Type of array elements.</typeparam>
-    public class MergeSorter<T> : IComparisonSorter<T>
+    public static class MergeSorter
     {
-        /// <summary>
-        ///     Sorts array using merge sort algorithm,
-        ///     originally designed as external sorting algorithm,
-        ///     internal, stable,
-        ///     time complexity: O(n log(n)),
-        ///     space complexity: O(n),
-        ///     where n - array length.
-        /// </summary>
-        /// <param name="array">Array to sort.</param>
-        /// <param name="comparer">Comparer to compare elements of <paramref name="array" />.</param>
-        public void Sort(T[] array, IComparer<T> comparer)
+        //
+        // Public merge-sort API
+        public static List<T> MergeSort<T>(this List<T> collection, Comparer<T> comparer = null)
         {
-            if (array.Length <= 1)
-            {
-                return;
-            }
+            comparer = comparer ?? Comparer<T>.Default;
 
-            var (left, right) = Split(array);
-            Sort(left, comparer);
-            Sort(right, comparer);
-            Merge(array, left, right, comparer);
+            return InternalMergeSort(collection, comparer);
         }
 
-        private static void Merge(T[] array, T[] left, T[] right, IComparer<T> comparer)
+
+        //
+        // Private static method
+        // Implements the recursive merge-sort algorithm
+        private static List<T> InternalMergeSort<T>(List<T> collection, Comparer<T> comparer)
         {
-            var mainIndex = 0;
-            var leftIndex = 0;
-            var rightIndex = 0;
-
-            while (leftIndex < left.Length && rightIndex < right.Length)
+            if (collection.Count < 2)
             {
-                var compResult = comparer.Compare(left[leftIndex], right[rightIndex]);
-                array[mainIndex++] = compResult <= 0 ? left[leftIndex++] : right[rightIndex++];
+                return collection;
             }
 
-            while (leftIndex < left.Length)
-            {
-                array[mainIndex++] = left[leftIndex++];
-            }
+            int midIndex = collection.Count / 2;
 
-            while (rightIndex < right.Length)
-            {
-                array[mainIndex++] = right[rightIndex++];
-            }
+            var leftCollection = collection.GetRange(0, midIndex);
+            var rightCollection = collection.GetRange(midIndex, collection.Count - midIndex);
+
+            leftCollection = InternalMergeSort<T>(leftCollection, comparer);
+            rightCollection = InternalMergeSort<T>(rightCollection, comparer);
+
+            return InternalMerge<T>(leftCollection, rightCollection, comparer);
         }
 
-        private static (T[] left, T[] right) Split(T[] array)
+
+        //
+        // Private static method
+        // Implements the merge function inside the merge-sort
+        private static List<T> InternalMerge<T>(List<T> leftCollection, List<T> rightCollection, Comparer<T> comparer)
         {
-            var mid = array.Length / 2;
-            return (array.Take(mid).ToArray(), array.Skip(mid).ToArray());
+            int left = 0;
+            int right = 0;
+            int index;
+            int length = leftCollection.Count + rightCollection.Count;
+
+            List<T> result = new List<T>(length);
+
+            for (index = 0; right < rightCollection.Count && left < leftCollection.Count; ++index)
+            {
+                if (comparer.Compare(rightCollection[right], leftCollection[left]) <= 0) // rightElement <= leftElement
+                {
+                    //resultArray.Add(rightCollection[right]);
+                    result.Insert(index, rightCollection[right++]);
+                }
+                else
+                {
+                    //result.Add(leftCollection[left]);
+                    result.Insert(index, leftCollection[left++]);
+                }
+            }
+
+            //
+            // At most one of left and right might still have elements left
+            
+            while (right < rightCollection.Count)
+            {
+                result.Insert(index++, rightCollection[right++]);
+            }
+
+            while (left < leftCollection.Count)
+            {
+                result.Insert(index++, leftCollection[left++]);
+            }
+
+            return result;
         }
     }
 }
+

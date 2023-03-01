@@ -1,48 +1,109 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using Algorithms.Sorting;
 
 namespace Algorithms.Search
 {
-    /// <summary>
-    ///     Binary Searcher checks an array for element specified by checking
-    ///     if element is greater or less than the half being checked.
-    ///     time complexity: O(log(n)),
-    ///     space complexity: O(1).
-    ///     Note: Array must be sorted beforehand.
-    /// </summary>
-    /// <typeparam name="T">Type of element stored inside array. 2.</typeparam>
-    public class BinarySearcher<T> where T : IComparable<T>
+    public class BinarySearcher<T> : IEnumerator<T>
     {
+        private readonly IList<T> _collection;
+        private readonly Comparer<T> _comparer;
+        private T _item;
+        private int _currentItemIndex;
+        private int _leftIndex;
+        private int _rightIndex;
+
         /// <summary>
-        ///     Finds index of an array by using binary search.
+        /// The value of the current item
         /// </summary>
-        /// <param name="sortedData">Sorted array to search in.</param>
-        /// <param name="item">Item to search for.</param>
-        /// <returns>Index of item that equals to item searched for or -1 if none found.</returns>
-        public int FindIndex(T[] sortedData, T item)
+        public T Current
         {
-            var leftIndex = 0;
-            var rightIndex = sortedData.Length - 1;
-
-            while (leftIndex <= rightIndex)
+            get
             {
-                var middleIndex = leftIndex + (rightIndex - leftIndex) / 2;
+                return _collection[_currentItemIndex];
+            }
+        }
 
-                if (item.CompareTo(sortedData[middleIndex]) > 0)
-                {
-                    leftIndex = middleIndex + 1;
-                    continue;
-                }
+        object IEnumerator.Current => Current;
 
-                if (item.CompareTo(sortedData[middleIndex]) < 0)
-                {
-                    rightIndex = middleIndex - 1;
-                    continue;
-                }
+        /// <summary>
+        /// Class constructor
+        /// </summary>
+        /// <param name="collection">A list</param>
+        /// <param name="comparer">A comparer</param>
+        public BinarySearcher(IList<T> collection, Comparer<T> comparer)
+        {
+            if (collection == null)
+            {
+                throw new NullReferenceException("List is null");
+            }
+            _collection = collection;
+            _comparer = comparer;
+            HeapSorter.HeapSort(_collection);
+        }
 
-                return middleIndex;
+        /// <summary>
+        /// Apply Binary Search in a list.
+        /// </summary>
+        /// <param name="item">The item we search</param>
+        /// <returns>If item found, its' index, -1 otherwise</returns>
+        public int BinarySearch(T item)
+        {
+            bool notFound = true;
+
+            if (item == null)
+            {
+                throw new NullReferenceException("Item to search for is not set");
+            }
+            Reset();
+            _item = item;
+
+            while ((_leftIndex <= _rightIndex) && notFound)
+            {
+                notFound = MoveNext();
             }
 
-            return -1;
+            if (notFound)
+            {
+                Reset();
+            }
+            return _currentItemIndex;
+        }
+
+        /// <summary>
+        /// An implementation of IEnumerator's MoveNext method.
+        /// </summary>
+        /// <returns>true if iteration can proceed to the next item, false otherwise</returns>
+        public bool MoveNext()
+        {
+            _currentItemIndex = this._leftIndex + (this._rightIndex - this._leftIndex) / 2;
+
+            if (_comparer.Compare(_item, Current) < 0)
+            {
+                _rightIndex = _currentItemIndex - 1;
+            }
+            else if (_comparer.Compare(_item, Current) > 0)
+            {
+                _leftIndex = _currentItemIndex + 1;
+            }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void Reset()
+        { 
+            this._currentItemIndex = -1;
+            _leftIndex = 0;
+            _rightIndex = _collection.Count - 1;
+        }
+
+        public void Dispose()
+        { 
+           //not implementing this, since there are no managed resources to release 
         }
     }
 }

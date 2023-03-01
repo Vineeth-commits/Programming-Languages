@@ -1,34 +1,42 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
-namespace Algorithms.Strings
+namespace Advanced.Algorithms.Combinatorics;
+
+/// <summary>
+///     Permutation generator (nPr).
+/// </summary>
+public class Permutation
 {
-    public static class Permutation
+    public static List<List<T>> Find<T>(List<T> n, int r, bool withRepetition = false)
     {
-        /// <summary>
-        /// Returns every anagram of a given word.
-        /// </summary>
-        /// <returns>List of anagrams.</returns>
-        public static List<string> GetEveryUniquePermutation(string word)
+        var result = new List<List<T>>();
+
+        Recurse(n, r, withRepetition, new List<T>(), new HashSet<int>(), result);
+
+        return result;
+    }
+
+    private static void Recurse<T>(List<T> n, int r, bool withRepetition,
+        List<T> prefix, HashSet<int> prefixIndices,
+        List<List<T>> result)
+    {
+        if (prefix.Count == r)
         {
-            if (word.Length < 2)
-            {
-                return new List<string>
-                {
-                    word,
-                };
-            }
+            result.Add(new List<T>(prefix));
+            return;
+        }
 
-            var result = new HashSet<string>();
+        for (var j = 0; j < n.Count; j++)
+        {
+            if (prefixIndices.Contains(j) && !withRepetition) continue;
 
-            for (var i = 0; i < word.Length; i++)
-            {
-                var temp = GetEveryUniquePermutation(word.Remove(i, 1));
+            prefix.Add(n[j]);
+            prefixIndices.Add(j);
 
-                result.UnionWith(temp.Select(subPerm => word[i] + subPerm));
-            }
+            Recurse(n, r, withRepetition, prefix, prefixIndices, result);
 
-            return result.ToList();
+            prefix.RemoveAt(prefix.Count - 1);
+            prefixIndices.Remove(j);
         }
     }
 }

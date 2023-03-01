@@ -1,53 +1,56 @@
 ﻿using System.Collections.Generic;
+using Algorithms.Common;
 
-namespace Algorithms.Sorters.Comparison
+namespace Algorithms.Sorting
 {
-    /// <summary>
-    ///     TODO.
-    /// </summary>
-    /// <typeparam name="T">TODO. 2.</typeparam>
-    public class ShellSorter<T> : IComparisonSorter<T>
+    public static class ShellSorter
     {
-        /// <summary>
-        ///     Sorts array using specified comparer,
-        ///     based on bubble sort,
-        ///     internal, in-place, unstable,
-        ///     worst-case time complexity: O(n^2),
-        ///     space complexity: O(1),
-        ///     where n - array length.
-        /// </summary>
-        /// <param name="array">Array to sort.</param>
-        /// <param name="comparer">Compares elements.</param>
-        public void Sort(T[] array, IComparer<T> comparer)
+        public static void ShellSort<T>(this IList<T> collection, Comparer<T> comparer = null)
         {
-            for (var step = array.Length / 2; step > 0; step /= 2)
+            comparer = comparer ?? Comparer<T>.Default;
+            collection.ShellSortAscending(comparer);
+        }
+
+        /// <summary>
+        /// Public API: Sorts ascending
+        /// </summary>
+        public static void ShellSortAscending<T>(this IList<T> collection, Comparer<T> comparer)
+        {
+            bool flag = true;
+            int d = collection.Count;
+            while (flag || (d > 1))
             {
-                for (var i = 0; i < step; i++)
+                flag = false;
+                d = (d + 1) / 2;
+                for (int i = 0; i < (collection.Count - d); i++)
                 {
-                    GappedBubbleSort(array, comparer, i, step);
+                    if (comparer.Compare(collection[i + d], collection[i]) < 0)
+                    {
+                        collection.Swap(i + d, i);
+                        flag = true;
+                    }
                 }
             }
         }
 
-        private static void GappedBubbleSort(T[] array, IComparer<T> comparer, int start, int step)
+        /// <summary>
+        /// Public API: Sorts descending
+        /// </summary>
+        public static void ShellSortDescending<T>(this IList<T> collection, Comparer<T> comparer)
         {
-            for (var j = start; j < array.Length - step; j += step)
+            bool flag = true;
+            int d = collection.Count;
+            while (flag || (d > 1))
             {
-                var wasChanged = false;
-                for (var k = start; k < array.Length - j - step; k += step)
+                flag = false;
+                d = (d + 1) / 2;
+                for (int i = 0; i < (collection.Count - d); i++)
                 {
-                    if (comparer.Compare(array[k], array[k + step]) > 0)
+                    if (comparer.Compare(collection[i + d], collection[i])>0)
                     {
-                        var temp = array[k];
-                        array[k] = array[k + step];
-                        array[k + step] = temp;
-                        wasChanged = true;
+                        collection.Swap(i+d,i);
+                        flag = true;
                     }
-                }
-
-                if (!wasChanged)
-                {
-                    break;
                 }
             }
         }

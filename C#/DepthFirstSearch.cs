@@ -1,50 +1,157 @@
 using System;
 using System.Collections.Generic;
-using DataStructures.Graph;
 
-namespace Algorithms.Graph
+class DepthFirstSearch
 {
-    /// <summary>
-    /// Depth First Search - algorithm for traversing graph.
-    /// Algorithm starts from root node that is selected by the user.
-    /// Algorithm explores as far as possible along each branch before backtracking.
-    /// </summary>
-    /// <typeparam name="T">Vertex data type.</typeparam>
-    public class DepthFirstSearch<T> : IGraphSearch<T> where T : IComparable<T>
+    static void Main(string[] args)
     {
-        /// <summary>
-        /// Traverses graph from start vertex.
-        /// </summary>
-        /// <param name="graph">Graph instance.</param>
-        /// <param name="startVertex">Vertex that search starts from.</param>
-        /// <param name="action">Action that needs to be executed on each graph vertex.</param>
-        public void VisitAll(IDirectedWeightedGraph<T> graph, Vertex<T> startVertex, Action<Vertex<T>>? action = default)
+        BinarySearchTree tree = new BinarySearchTree();
+        tree.insert(9);
+        tree.insert(4);
+        tree.insert(6);
+        tree.insert(20);
+        tree.insert(170);
+        tree.insert(15);
+        tree.insert(1);
+
+        var InOrder = tree.DFSInOrder();
+        PrintList(InOrder);
+        var PreOrder = tree.DFSPreOrder();
+        PrintList(PreOrder);
+        var PostOrder = tree.DFSPostOrder();
+        PrintList(PostOrder);
+    }
+
+    private static void PrintList(List<int> list)
+    {
+        foreach (var item in list)
         {
-            Dfs(graph, startVertex, action, new HashSet<Vertex<T>>());
+            Console.Write(item.ToString() + " ");
+        }
+        Console.WriteLine();
+    }
+}
+
+class Node
+{
+    public Node left { get; set; }
+    public Node right { get; set; }
+    public int value { get; set; }
+
+    public Node(int value)
+    {
+        this.left = null;
+        this.right = null;
+        this.value = value;
+    }
+}
+
+class BinarySearchTree
+{
+    public Node root;
+    public BinarySearchTree()
+    {
+        this.root = null;
+    }
+
+    public void insert(int value)
+    {
+        Node newNode = new Node(value);
+        if (this.root == null)
+        {
+            this.root = newNode;
+            return;
         }
 
-        /// <summary>
-        /// Traverses graph from start vertex.
-        /// </summary>
-        /// <param name="graph">Graph instance.</param>
-        /// <param name="startVertex">Vertex that search starts from.</param>
-        /// <param name="action">Action that needs to be executed on each graph vertex.</param>
-        /// <param name="visited">Hash set with visited vertices.</param>
-        private void Dfs(IDirectedWeightedGraph<T> graph, Vertex<T> startVertex, Action<Vertex<T>>? action, HashSet<Vertex<T>> visited)
+        Node currentNode = this.root;
+        while (true)
         {
-            action?.Invoke(startVertex);
-
-            visited.Add(startVertex);
-
-            foreach (var vertex in graph.GetNeighbors(startVertex))
+            if (currentNode.value > value)
             {
-                if (vertex == null || visited.Contains(vertex))
+                if (currentNode.left == null)
                 {
-                    continue;
+                    currentNode.left = new Node(value);
+                    return;
                 }
-
-                Dfs(graph, vertex!, action, visited);
+                currentNode = currentNode.left;
+            }
+            else
+            {
+                if (currentNode.right == null)
+                {
+                    currentNode.right = new Node(value);
+                    return;
+                }
+                currentNode = currentNode.right;
             }
         }
+    }
+
+    public List<int> DFSInOrder()
+    {
+        List<int> result = new List<int>();
+        traverseInOrder(this.root, result);
+        return result;
+    }
+
+    public List<int> DFSPreOrder()
+    {
+        List<int> result = new List<int>();
+        traversePreOrder(this.root, result);
+        return result;
+    }
+
+    public List<int> DFSPostOrder()
+    {
+        List<int> result = new List<int>();
+        traversePostOrder(this.root, result);
+        return result;
+    }
+
+    public List<int> traverseInOrder(Node node, List<int> list)
+    {
+        if (node.left != null)
+        {
+            traverseInOrder(node.left, list);
+        }
+        list.Add(node.value);
+        if (node.right != null)
+        {
+            traverseInOrder(node.right, list);
+        }
+
+        return list;
+    }
+
+    public List<int> traversePreOrder(Node node, List<int> list)
+    {
+        list.Add(node.value);
+        if (node.left != null)
+        {
+            traversePreOrder(node.left, list);
+        }
+        
+        if (node.right != null)
+        {
+            traversePreOrder(node.right, list);
+        }
+
+        return list;
+    }
+
+    public List<int> traversePostOrder(Node node, List<int> list)
+    {
+        if (node.left != null)
+        {
+            traversePostOrder(node.left, list);
+        }
+        
+        if (node.right != null)
+        {
+            traversePostOrder(node.right, list);
+        }
+        list.Add(node.value);
+
+        return list;
     }
 }

@@ -1,33 +1,64 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using DataStructures.Lists;
 
-namespace Algorithms.Sorters.Comparison
+namespace Algorithms.Sorting
 {
     /// <summary>
-    ///     Class that implements insertion sort algorithm.
+    /// Implements this Insertion Sort algorithm over ArrayLists.
     /// </summary>
-    /// <typeparam name="T">Type of array element.</typeparam>
-    public class InsertionSorter<T> : IComparisonSorter<T>
+    public static class InsertionSorter
     {
-        /// <summary>
-        ///     Sorts array using specified comparer,
-        ///     internal, in-place, stable,
-        ///     time complexity: O(n^2),
-        ///     space complexity: O(1),
-        ///     where n - array length.
-        /// </summary>
-        /// <param name="array">Array to sort.</param>
-        /// <param name="comparer">Compares elements.</param>
-        public void Sort(T[] array, IComparer<T> comparer)
+        //
+        // The quick insertion sort algorithm.
+        // For any collection that implements the IList interface.
+        public static void InsertionSort<T>(this IList<T> list, Comparer<T> comparer = null)
         {
-            for (var i = 1; i < array.Length; i++)
+            //
+            // If the comparer is Null, then initialize it using a default typed comparer
+            comparer = comparer ?? Comparer<T>.Default;
+
+            // Do sorting if list is not empty.
+            int i, j;
+            for (i = 1; i < list.Count; i++)
             {
-                for (var j = i; j > 0 && comparer.Compare(array[j], array[j - 1]) < 0; j--)
+                T value = list[i];
+                j = i - 1;
+
+                while ((j >= 0) && (comparer.Compare(list[j], value) > 0))
                 {
-                    var temp = array[j - 1];
-                    array[j - 1] = array[j];
-                    array[j] = temp;
+                    list[j + 1] = list[j];
+                    j--;
+                }
+
+                list[j + 1] = value;
+            }
+        }
+
+
+        //
+        // The quick insertion sort algorithm.
+        // For the internal ArrayList<T>. Check the DataStructures.ArrayList.cs.
+        public static void InsertionSort<T>(this ArrayList<T> list, Comparer<T> comparer = null)
+        {
+            //
+            // If the comparer is Null, then initialize it using a default typed comparer
+            comparer = comparer ?? Comparer<T>.Default;
+
+            for (int i = 1; i < list.Count; i++)
+            {
+                for (int j = i; j > 0; j--)
+                {
+                    if (comparer.Compare(list[j], list[j - 1]) < 0) //(j)th is less than (j-1)th
+                    {
+                        var temp = list[j - 1];
+                        list[j - 1] = list[j];
+                        list[j] = temp;
+                    }
                 }
             }
         }
+
     }
+
 }
+

@@ -1,102 +1,88 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
-namespace Algorithms.Search.AStar
+namespace DataStructures.AvlTreeSpace
 {
-    /// <summary>
-    ///     Contains Positional and other information about a single node.
-    /// </summary>
-    public class Node : IComparable<Node>, IEquatable<Node>
+    public partial class AvlTree<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
+        where TKey : IComparable<TKey>
     {
-        public Node(VecN position, bool traversable, double traverseMultiplier)
+        /// <summary>
+        /// Node of Heap
+        /// </summary>
+        /// <typeparam name="T">Data type</typeparam>
+        [Serializable]
+        protected class Node<TKey, TValue>
+            where TKey : IComparable<TKey>
         {
-            Traversable = traversable;
-            Position = position;
-            TraversalCostMultiplier = traverseMultiplier;
+            private TKey key;
+            private TValue val;
+
+            public TKey Key
+            {
+                get { return key; }
+                set
+                {
+                    Contract.Requires<ArgumentNullException>(value != null);
+                    key = value;
+                }
+
+            }
+            public TValue Value
+            {
+                get { return val; }
+                set
+                {
+                    Contract.Requires<ArgumentNullException>(value != null);
+                    val = value;
+                }
+            }
+            public int Height { get; set; }
+            public Node<TKey, TValue> Parent { get; set; }
+            public Node<TKey, TValue> Left { get; set; }
+            public Node<TKey, TValue> Right { get; set; }
+
+            public Node(TKey key, TValue val, Node<TKey, TValue> parent, int height)
+            {
+                Contract.Requires<ArgumentNullException>(key != null);
+                Contract.Requires<ArgumentNullException>(val != null);
+
+                this.val = val;
+                Parent = parent;
+                Height = height;
+                Left = null;
+                Right = null;
+            }
+
+            public bool Equals(Node<TKey, TValue> otherNode)
+            {
+                if (otherNode == null)
+                {
+                    return false;
+                }
+                return val.Equals(otherNode.Value);
+            }
+
+            public override bool Equals(object obj)
+            {
+                var otherNode = obj as Node<TKey, TValue>;
+                if (otherNode == null)
+                {
+                    return false;
+                }
+                return val.Equals(otherNode.Value);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked // Overflow is fine, just wrap
+                {
+                    int hash = 17;
+                    // Suitable nullity checks etc, of course :)
+                    hash = hash * 23 + key.GetHashCode();
+                    return hash;
+                }
+            }
         }
-
-        /// <summary>
-        ///     Gets the Total cost of the Node.
-        ///     The Current Costs + the estimated costs.
-        /// </summary>
-        public double TotalCost => EstimatedCost + CurrentCost;
-
-        /// <summary>
-        ///     Gets or sets the Distance between this node and the target node.
-        /// </summary>
-        public double EstimatedCost { get; set; }
-
-        /// <summary>
-        ///     Gets a value indicating whether how costly it is to traverse over this node.
-        /// </summary>
-        public double TraversalCostMultiplier { get; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether to go from the start node to this node.
-        /// </summary>
-        public double CurrentCost { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the state of the Node
-        ///     Can be Unconsidered(Default), Open and Closed.
-        /// </summary>
-        public NodeState State { get; set; }
-
-        /// <summary>
-        ///     Gets a value indicating whether the node is traversable.
-        /// </summary>
-        public bool Traversable { get; }
-
-        /// <summary>
-        ///     Gets or sets a list of all connected nodes.
-        /// </summary>
-        public Node[] ConnectedNodes { get; set; } = new Node[0];
-
-        /// <summary>
-        ///     Gets or sets he "previous" node that was processed before this node.
-        /// </summary>
-        public Node? Parent { get; set; }
-
-        /// <summary>
-        ///     Gets the positional information of the node.
-        /// </summary>
-        public VecN Position { get; }
-
-        /// <summary>
-        ///     Compares the Nodes based on their total costs.
-        ///     Total Costs: A* Pathfinding.
-        ///     Current: Djikstra Pathfinding.
-        ///     Estimated: Greedy Pathfinding.
-        /// </summary>
-        /// <param name="other">The other node.</param>
-        /// <returns>A comparison between the costs.</returns>
-        public int CompareTo(Node? other) => TotalCost.CompareTo(other?.TotalCost ?? 0);
-
-        public bool Equals(Node? other) => CompareTo(other) == 0;
-
-        public static bool operator ==(Node left, Node right) => left?.Equals(right) != false;
-
-        public static bool operator >(Node left, Node right) => left.CompareTo(right) > 0;
-
-        public static bool operator <(Node left, Node right) => left.CompareTo(right) < 0;
-
-        public static bool operator !=(Node left, Node right) => !(left == right);
-
-        public static bool operator <=(Node left, Node right) => left.CompareTo(right) <= 0;
-
-        public static bool operator >=(Node left, Node right) => left.CompareTo(right) >= 0;
-
-        public override bool Equals(object? obj) => obj is Node other && Equals(other);
-
-        public override int GetHashCode() =>
-            Position.GetHashCode()
-            + Traversable.GetHashCode()
-            + TraversalCostMultiplier.GetHashCode();
-
-        /// <summary>
-        ///     Returns the distance to the other node.
-        /// </summary>
-        /// <param name="other">The other node.</param>
-        /// <returns>Distance between this and other.</returns>
-        public double DistanceTo(Node other) => Math.Sqrt(Position.SqrDistance(other.Position));
     }
 }

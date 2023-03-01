@@ -1,38 +1,47 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Algorithms.Common;
 
-namespace Algorithms.Sorters.Comparison
+namespace Algorithms.Sorting
 {
-    /// <summary>
-    ///     Class that implements selection sort algorithm.
-    /// </summary>
-    /// <typeparam name="T">Type of array element.</typeparam>
-    public class SelectionSorter<T> : IComparisonSorter<T>
+    public static class SelectionSorter
     {
-        /// <summary>
-        ///     Sorts array using specified comparer,
-        ///     internal, in-place, stable,
-        ///     time complexity: O(n^2),
-        ///     space complexity: O(1),
-        ///     where n - array length.
-        /// </summary>
-        /// <param name="array">Array to sort.</param>
-        /// <param name="comparer">Compares elements.</param>
-        public void Sort(T[] array, IComparer<T> comparer)
+        public static void SelectionSort<T>(this IList<T> collection, Comparer<T> comparer = null)
         {
-            for (var i = 0; i < array.Length - 1; i++)
-            {
-                var jmin = i;
-                for (var j = i + 1; j < array.Length; j++)
-                {
-                    if (comparer.Compare(array[jmin], array[j]) > 0)
-                    {
-                        jmin = j;
-                    }
-                }
+            comparer = comparer ?? Comparer<T>.Default;
+            collection.SelectionSortAscending(comparer);
+        }
 
-                var t = array[i];
-                array[i] = array[jmin];
-                array[jmin] = t;
+        /// <summary>
+        /// Public API: Sorts ascending
+        /// </summary>
+        public static void SelectionSortAscending<T>(this IList<T> collection, Comparer<T> comparer)
+        {
+            int i;
+            for(i=0;i<collection.Count;i++){
+                int min=i;
+                for (int j = i + 1; j < collection.Count; j++) { 
+                    if (comparer.Compare(collection[j], collection[min])<0) 
+                        min=j;
+                }
+                collection.Swap(i,min);
+            }
+        }
+
+        /// <summary>
+        /// Public API: Sorts ascending
+        /// </summary>
+        public static void SelectionSortDescending<T>(this IList<T> collection, Comparer<T> comparer)
+        {
+            int i;
+            for (i = collection.Count-1; i >0; i--)
+            {
+                int max = i;
+                for (int j = 0; j <=i; j++)
+                {
+                    if (comparer.Compare(collection[j], collection[max]) < 0)
+                        max = j;
+                }
+                collection.Swap(i, max);
             }
         }
     }

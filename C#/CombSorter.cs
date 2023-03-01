@@ -1,50 +1,64 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Algorithms.Common;
 
-namespace Algorithms.Sorters.Comparison
+namespace Algorithms.Sorting
 {
-    /// <summary>
-    ///     Comb sort is a relatively simple sorting algorithm that improves on bubble sort.
-    /// </summary>
-    /// <typeparam name="T">Type of array element.</typeparam>
-    public class CombSorter<T> : IComparisonSorter<T>
+    public static class CombSorter
     {
-        public CombSorter(double shrinkFactor = 1.3) => ShrinkFactor = shrinkFactor;
-
-        private double ShrinkFactor { get; }
+        public static void CombSort<T>(this IList<T> collection, Comparer<T> comparer = null)
+        {
+            comparer = comparer ?? Comparer<T>.Default;
+            collection.ShellSortAscending(comparer);
+        }
 
         /// <summary>
-        ///     Sorts array using specified comparer,
-        ///     internal, in-place, unstable,
-        ///     worst case performance: O(n^2),
-        ///     best case performance: O(n log(n)),
-        ///     average performance: O(n^2 / 2^p),
-        ///     space complexity: O(1),
-        ///     where n - array length and p - number of increments.
-        ///     See <a href="https://en.wikipedia.org/wiki/Comb_sort">here</a> for more info.
+        /// Public API: Sorts ascending
         /// </summary>
-        /// <param name="array">Array to sort.</param>
-        /// <param name="comparer">Compares elements.</param>
-        public void Sort(T[] array, IComparer<T> comparer)
+        public static void CombSortAscending<T>(this IList<T> collection, Comparer<T> comparer)
         {
-            var gap = array.Length;
-            var sorted = false;
-            while (!sorted)
+            double gap = collection.Count;
+            bool swaps = true;
+            while (gap > 1 || swaps)
             {
-                gap = (int)Math.Floor(gap / ShrinkFactor);
-                if (gap <= 1)
+                gap /= 1.247330950103979;
+                if (gap < 1) { gap = 1; }
+                int i = 0;
+                swaps = false;
+                while (i + gap < collection.Count)
                 {
-                    gap = 1;
-                    sorted = true;
-                }
-
-                for (var i = 0; i < array.Length - gap; i++)
-                {
-                    if (comparer.Compare(array[i], array[i + gap]) > 0)
+                    int igap = i + (int)gap;
+                    if (comparer.Compare(collection[i], collection[igap])>0)
                     {
-                        (array[i], array[i + gap]) = (array[i + gap], array[i]);
-                        sorted = false;
+                        collection.Swap(i,igap);
+                        swaps = true;
                     }
+                    i++;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Public API: Sorts descending
+        /// </summary>
+        public static void CombSortDescending<T>(this IList<T> collection, Comparer<T> comparer)
+        {
+            double gap = collection.Count;
+            bool swaps = true;
+            while (gap > 1 || swaps)
+            {
+                gap /= 1.247330950103979;
+                if (gap < 1) { gap = 1; }
+                int i = 0;
+                swaps = false;
+                while (i + gap < collection.Count)
+                {
+                    int igap = i + (int)gap;
+                    if (comparer.Compare(collection[i], collection[igap]) < 0)
+                    {
+                        collection.Swap(i, igap);
+                        swaps = true;
+                    }
+                    i++;
                 }
             }
         }

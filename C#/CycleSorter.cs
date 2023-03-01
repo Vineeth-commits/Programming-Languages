@@ -1,79 +1,80 @@
 ﻿using System.Collections.Generic;
 
-namespace Algorithms.Sorters.Comparison
+namespace Algorithms.Sorting
 {
-    /// <summary>
-    ///     Cycle sort is an in-place, unstable sorting algorithm,
-    ///     a comparison sort that is theoretically optimal in terms of the total
-    ///     number of writes to the original array.
-    ///     It is based on the idea that the permutation to be sorted can be factored
-    ///     into cycles, which can individually be rotated to give a sorted result.
-    /// </summary>
-    /// <typeparam name="T">Type array input.</typeparam>
-    public class CycleSorter<T> : IComparisonSorter<T>
+    public static class CycleSorter
     {
-        /// <summary>
-        ///     Sorts input array using Cycle sort.
-        /// </summary>
-        /// <param name="array">Input array.</param>
-        /// <param name="comparer">Integer comparer.</param>
-        public void Sort(T[] array, IComparer<T> comparer)
+
+        public static void CycleSort<T>(this IList<T> collection, Comparer<T> comparer = null)
         {
-            for (var i = 0; i < array.Length - 1; i++)
-            {
-                MoveCycle(array, i, comparer);
-            }
+            comparer = comparer ?? Comparer<T>.Default;
+            collection.CycleSortAscending(comparer);
         }
-
-        private static void MoveCycle(T[] array, int startingIndex, IComparer<T> comparer)
+        
+        public static void CycleSortDescending<T>(this IList<T> collection, Comparer<T> comparer)
         {
-            var item = array[startingIndex];
-            var pos = startingIndex + CountSmallerElements(array, startingIndex + 1, item, comparer);
-
-            if (pos == startingIndex)
+            for (int cycleStart = 0; cycleStart < collection.Count; cycleStart++)
             {
-                return;
-            }
+                T item = collection[cycleStart];
+                int position = cycleStart;
 
-            pos = SkipSameElements(array, pos, item, comparer);
-
-            var temp = array[pos];
-            array[pos] = item;
-            item = temp;
-
-            while (pos != startingIndex)
-            {
-                pos = startingIndex + CountSmallerElements(array, startingIndex + 1, item, comparer);
-                pos = SkipSameElements(array, pos, item, comparer);
-
-                temp = array[pos];
-                array[pos] = item;
-                item = temp;
-            }
-        }
-
-        private static int SkipSameElements(T[] array, int nextIndex, T item, IComparer<T> comparer)
-        {
-            while (comparer.Compare(array[nextIndex], item) == 0)
-            {
-                nextIndex++;
-            }
-
-            return nextIndex;
-        }
-
-        private static int CountSmallerElements(T[] array, int startingIndex, T element, IComparer<T> comparer)
-        {
-            var smallerElements = 0;
-            for (var i = startingIndex; i < array.Length; i++)
-            {
-                if (comparer.Compare(array[i], element) < 0)
+                do
                 {
-                    smallerElements++;
-                }
-            }
+                    int to = 0;
+                    for (int i = 0; i < collection.Count; i++)
+                    {
+                        if (i != cycleStart && comparer.Compare(collection[i], item) > 0)
+                        {
+                            to++;
+                        }
+                    }
+                    if (position != to)
+                    {
+                        while (position != to && comparer.Compare(item, collection[to]) == 0)
+                        {
+                            to++;
+                        }
 
-            return smallerElements;
+                        T temp = collection[to];
+                        collection[to] = item;
+                        item = temp;
+                        position = to;
+                    }
+                } while (position != cycleStart);
+            }
+        }
+
+        public static void CycleSortAscending<T>(this IList<T> collection, Comparer<T> comparer)
+        {
+            for (int cycleStart = 0; cycleStart < collection.Count; cycleStart++)
+            {
+                T item = collection[cycleStart];
+                int position = cycleStart;
+
+                do
+                {
+                    int to = 0;
+                    for (int i = 0; i < collection.Count; i++)
+                    {
+                        if (i != cycleStart && comparer.Compare(collection[i], item) < 0)
+                        {
+                            to++;
+                        }
+                    }
+                    if (position != to)
+                    {
+                        while (position != to && comparer.Compare(item,collection[to]) == 0)
+                        {
+                            to++;
+                        }
+
+                        T temp = collection[to];
+                        collection[to] = item;
+                        item = temp;
+                        position = to;
+                    }
+                } while (position != cycleStart);
+            }
         }
     }
 }

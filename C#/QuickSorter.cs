@@ -1,68 +1,72 @@
 ﻿using System.Collections.Generic;
+using Algorithms.Common;
 
-namespace Algorithms.Sorters.Comparison
+namespace Algorithms.Sorting
 {
-    /// <summary>
-    ///     Sorts arrays using quicksort.
-    /// </summary>
-    /// <typeparam name="T">Type of array element.</typeparam>
-    public abstract class QuickSorter<T> : IComparisonSorter<T>
+    public static class QuickSorter
     {
-        /// <summary>
-        ///     Sorts array using Hoare partition scheme,
-        ///     internal, in-place,
-        ///     time complexity average: O(n log(n)),
-        ///     time complexity worst: O(n^2),
-        ///     space complexity: O(log(n)),
-        ///     where n - array length.
-        /// </summary>
-        /// <param name="array">Array to sort.</param>
-        /// <param name="comparer">Compares elements.</param>
-        public void Sort(T[] array, IComparer<T> comparer) => Sort(array, comparer, 0, array.Length - 1);
-
-        protected abstract T SelectPivot(T[] array, IComparer<T> comparer, int left, int right);
-
-        private void Sort(T[] array, IComparer<T> comparer, int left, int right)
+        //
+        // The public APIs for the quick sort algorithm.
+        public static void QuickSort<T>(this IList<T> collection, Comparer<T> comparer = null)
         {
-            if (left >= right)
-            {
-                return;
-            }
+            int startIndex = 0;
+            int endIndex = collection.Count - 1;
 
-            var p = Partition(array, comparer, left, right);
-            Sort(array, comparer, left, p);
-            Sort(array, comparer, p + 1, right);
+            //
+            // If the comparer is Null, then initialize it using a default typed comparer
+            comparer = comparer ?? Comparer<T>.Default;
+
+            collection.InternalQuickSort(startIndex, endIndex, comparer);
         }
 
-        private int Partition(T[] array, IComparer<T> comparer, int left, int right)
+
+        //
+        // Private static method
+        // The recursive quick sort algorithm
+        private static void InternalQuickSort<T>(this IList<T> collection, int leftmostIndex, int rightmostIndex, Comparer<T> comparer)
         {
-            var pivot = SelectPivot(array, comparer, left, right);
-            var nleft = left;
-            var nright = right;
-            while (true)
+            //
+            // Recursive call check
+            if (leftmostIndex < rightmostIndex)
             {
-                while (comparer.Compare(array[nleft], pivot) < 0)
-                {
-                    nleft++;
-                }
-
-                while (comparer.Compare(array[nright], pivot) > 0)
-                {
-                    nright--;
-                }
-
-                if (nleft >= nright)
-                {
-                    return nright;
-                }
-
-                var t = array[nleft];
-                array[nleft] = array[nright];
-                array[nright] = t;
-
-                nleft++;
-                nright--;
+                int wallIndex = collection.InternalPartition(leftmostIndex, rightmostIndex, comparer);
+                collection.InternalQuickSort(leftmostIndex, wallIndex - 1, comparer);
+                collection.InternalQuickSort(wallIndex + 1, rightmostIndex, comparer);
             }
         }
+
+
+        //
+        // Private static method
+        // The partition function, used in the quick sort algorithm
+        private static int InternalPartition<T>(this IList<T> collection, int leftmostIndex, int rightmostIndex, Comparer<T> comparer)
+        {
+            int wallIndex, pivotIndex;
+
+            // Choose the pivot
+            pivotIndex = rightmostIndex;
+            T pivotValue = collection[pivotIndex];
+
+            // Compare remaining array elements against pivotValue
+            wallIndex = leftmostIndex;
+
+            // Loop until pivot: exclusive!
+            for (int i = leftmostIndex; i <= (rightmostIndex - 1); i++)
+            {
+                // check if collection[i] <= pivotValue
+                if (comparer.Compare(collection[i], pivotValue) <= 0)
+                {
+                    collection.Swap(i, wallIndex);
+                    wallIndex++;
+                }
+            }
+
+            collection.Swap(wallIndex, pivotIndex);
+
+            return wallIndex;
+        }
+
     }
+
 }
+

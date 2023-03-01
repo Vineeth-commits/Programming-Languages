@@ -1,41 +1,46 @@
 ﻿using System.Collections.Generic;
+using Algorithms.Common;
 
-namespace Algorithms.Sorters.Comparison
+namespace Algorithms.Sorting
 {
-    /// <summary>
-    ///     Class that implements bubble sort algorithm.
-    /// </summary>
-    /// <typeparam name="T">Type of array element.</typeparam>
-    public class BubbleSorter<T> : IComparisonSorter<T>
+    public static class BubbleSorter
     {
-        /// <summary>
-        ///     Sorts array using specified comparer,
-        ///     internal, in-place, stable,
-        ///     time complexity: O(n^2),
-        ///     space complexity: O(1),
-        ///     where n - array length.
-        /// </summary>
-        /// <param name="array">Array to sort.</param>
-        /// <param name="comparer">Compares elements.</param>
-        public void Sort(T[] array, IComparer<T> comparer)
+        public static void BubbleSort<T>(this IList<T> collection, Comparer<T> comparer = null)
         {
-            for (var i = 0; i < array.Length - 1; i++)
+            comparer = comparer ?? Comparer<T>.Default;
+            collection.BubbleSortAscending(comparer);
+        }
+
+        /// <summary>
+        /// Public API: Sorts ascending
+        /// </summary>
+        public static void BubbleSortAscending<T>(this IList<T> collection, Comparer<T> comparer)
+        {
+            for (int i = 0; i < collection.Count; i++)
             {
-                var wasChanged = false;
-                for (var j = 0; j < array.Length - i - 1; j++)
+                for (int index = 0; index < collection.Count - i - 1; index++)
                 {
-                    if (comparer.Compare(array[j], array[j + 1]) > 0)
+                    if (comparer.Compare(collection[index], collection[index + 1]) > 0)
                     {
-                        var temp = array[j];
-                        array[j] = array[j + 1];
-                        array[j + 1] = temp;
-                        wasChanged = true;
+                        collection.Swap(index, index + 1);
                     }
                 }
+            }
+        }
 
-                if (!wasChanged)
+        /// <summary>
+        /// Public API: Sorts descending
+        /// </summary>
+        public static void BubbleSortDescending<T>(this IList<T> collection, Comparer<T> comparer)
+        {
+            for (int i = 0; i < collection.Count - 1; i++)
+            {
+                for (int index = 1; index < collection.Count - i; index++)
                 {
-                    break;
+                    if (comparer.Compare(collection[index], collection[index - 1]) > 0)
+                    {
+                        collection.Swap(index - 1, index);
+                    }
                 }
             }
         }

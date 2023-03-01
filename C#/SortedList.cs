@@ -1,132 +1,135 @@
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
-namespace DataStructures
+namespace DataStructures.ListSpace
 {
     /// <summary>
-    ///     Implementation of SortedList using binary search.
+    /// Use insertion sort for every element added
     /// </summary>
-    /// <typeparam name="T">Generic Type.</typeparam>
-    public class SortedList<T> : IEnumerable<T>
+    /// <typeparam name="T"></typeparam>
+    [Serializable]
+    public class SortedList<T> : IEnumerable<T>, ICollection<T>
+        where T : IComparable<T>
     {
-        private readonly IComparer<T> comparer;
-        private readonly List<T> memory;
+        private List<T> list;
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SortedList{T}" /> class. Uses a Comparer.Default for type T.
-        /// </summary>
-        public SortedList()
-            : this(Comparer<T>.Default)
+        public int Capacity
         {
+            get { return list.Capacity; }
         }
 
-        /// <summary>
-        ///     Gets the number of elements containing in <see cref="SortedList{T}" />.
-        /// </summary>
-        public int Count => memory.Count;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SortedList{T}" /> class.
-        /// </summary>
-        /// <param name="comparer">Comparer user for binary search.</param>
-        public SortedList(IComparer<T> comparer)
+        bool ICollection<T>.Remove(T item)
         {
-            memory = new List<T>();
-            this.comparer = comparer;
+            var success = ((ICollection<T>)list).Remove(item);
+            return success;
         }
 
-        /// <summary>
-        ///     Adds new item to <see cref="SortedList{T}" /> instance, maintaining the order.
-        /// </summary>
-        /// <param name="item">An element to insert.</param>
-        public void Add(T item)
+        public int Count
         {
-            var index = IndexFor(item, out _);
-            memory.Insert(index, item);
+            get { return list.Count; }
         }
 
-        /// <summary>
-        ///     Gets an element of <see cref="SortedList{T}" /> at specified index.
-        /// </summary>
-        /// <param name="i">Index.</param>
-        public T this[int i] => memory[i];
+        public bool IsReadOnly { get; private set; }
+        public bool IsSynchronized { get { return false; } }
 
-        /// <summary>
-        /// Removes all elements from <see cref="SortedList{T}" />.
-        /// </summary>
+        [ContractInvariantMethod]
+        private void ObjectInvariant()
+        {
+            Contract.Invariant(Count >= 0);
+            Contract.Invariant(Capacity >= 0);
+        }
+
+        public SortedList() 
+        {
+            list = new List<T>();
+        }
+
+        public SortedList(int capacity)
+        {
+            Contract.Requires<ArgumentOutOfRangeException>(capacity > 0);
+
+            list = new List<T>(capacity);
+        }
+
+        public SortedList(IEnumerable<T> list)
+        {
+            Contract.Requires<ArgumentNullException>(list != null);
+
+            this.list = new List<T>(list);
+            this.list.Sort();
+        }
+
+        public void Add(T element)
+        {
+            Contract.Requires<ArgumentNullException>(element != null);
+
+            var count = 0;
+            //search for the previous element only when there are other elements in the list
+            if(list.Count>0){
+                for (var i = 0; i < list.Count; i++, count++)
+                {
+                    if (element.CompareTo(list[i]) <= 0)
+                    {
+                        count = i;
+                        break;
+                    }
+                }
+                if(count>0)
+                    Contract.Assert(list[count-1].CompareTo(element) <= 0);
+            }
+            list.Insert(count, element);
+        }
+
         public void Clear()
-            => memory.Clear();
+        {
+            list = new List<T>();
+        }
 
-        /// <summary>
-        /// Indicates whether a <see cref="SortedList{T}" /> contains a certain element.
-        /// </summary>
-        /// <param name="item">An element to search.</param>
-        /// <returns>true - <see cref="SortedList{T}" /> contains an element, otherwise - false.</returns>
         public bool Contains(T item)
         {
-            _ = IndexFor(item, out var found);
-            return found;
+            return list.Contains(item);
         }
 
-        /// <summary>
-        /// Removes a certain element from <see cref="SortedList{T}" />.
-        /// </summary>
-        /// <param name="item">An element to remove.</param>
-        /// <returns>true - element is found and removed, otherwise false.</returns>
-        public bool TryRemove(T item)
+        public void CopyTo(T[] array, int arrayIndex)
         {
-            var index = IndexFor(item, out var found);
+            Contract.Requires<ArgumentNullException>(array != null, "array is null");
+            Contract.Requires<ArgumentOutOfRangeException>(arrayIndex >= 0, "arrayIndex less than 0");
 
-            if (found)
+            for (var i = arrayIndex; i < list.Count; i++)
             {
-                memory.RemoveAt(index);
+                array[i] = list[i];
             }
-
-            return found;
         }
 
-        /// <summary>
-        /// Returns an enumerator that iterates through the <see cref="SortedList{T}" />.
-        /// </summary>
-        /// <returns>A Enumerator for the <see cref="SortedList{T}" />.</returns>
+        public void Remove(T element)
+        {
+            Contract.Requires<ArgumentNullException>(element != null);
+
+            list.Remove(element);
+        }
+
+        public void CopyTo(Array array, int index)
+        {
+            Contract.Requires<ArgumentNullException>(array != null, "array is null");
+            Contract.Requires<ArgumentOutOfRangeException>(index >= 0, "arrayIndex less than 0");
+            Contract.Requires<ArgumentException>(array.Length < Count, "array not big enough");
+
+            int i = index;
+            foreach (T element in list)
+            {
+                array.SetValue(element, i++);
+            }
+        }
+
         public IEnumerator<T> GetEnumerator()
-            => memory.GetEnumerator();
-
-        /// <inheritdoc cref="IEnumerable.GetEnumerator"/>
-        IEnumerator IEnumerable.GetEnumerator()
-            => GetEnumerator();
-
-        /// <summary>
-        /// Binary search algorithm for finding element index in <see cref="SortedList{T}" />.
-        /// </summary>
-        /// <param name="item">Element.</param>
-        /// <param name="found">Indicates whether the equal value was found in <see cref="SortedList{T}" />.</param>
-        /// <returns>Index for the Element.</returns>
-        private int IndexFor(T item, out bool found)
         {
-            var left = 0;
-            var right = memory.Count;
+            return list.GetEnumerator();
+        }
 
-            while (right - left > 0)
-            {
-                var mid = (left + right) / 2;
-
-                switch (comparer.Compare(item, memory[mid]))
-                {
-                    case > 0:
-                        left = mid + 1;
-                        break;
-                    case < 0:
-                        right = mid;
-                        break;
-                    default:
-                        found = true;
-                        return mid;
-                }
-            }
-
-            found = false;
-            return left;
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }
