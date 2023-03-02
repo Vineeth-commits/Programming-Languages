@@ -1,43 +1,49 @@
-from heapq import heappush, heappop
-# graph = { 
-#     's' : {'t':6, 'y':7},
-#     't' : {'x':5, 'z':4, 'y':8 },
-#     'y' : {'z':9, 'x':3},
-#     'z' : {'x':7, 's': 2},
-#     'x' : {'t':2}
-# }
+"""
+Dijkstra's single-source shortest-path algorithm
+"""
 
-def read_graph(file):
-    graph = dict()
-    with open(file) as f:
-        for l in f:
-            (u, v, w) = l.split()
-            if int(u) not in graph:
-                graph[int(u)] = dict()
-            graph[int(u)][int(v)] = int(w)
-    return graph
+class Dijkstra():
+    """
+    A fully connected directed graph with edge weights
+    """
 
-inf = float('inf')
-def dijkstra(graph, s):
-    n = len(graph.keys())
-    dist = dict()
-    Q = list()
-    
-    for v in graph:
-        dist[v] = inf
-    dist[s] = 0
-    
-    heappush(Q, (dist[s], s))
+    def __init__(self, vertex_count):
+        self.vertex_count = vertex_count
+        self.graph = [[0 for _ in range(vertex_count)] for _ in range(vertex_count)]
 
-    while Q:
-        d, u = heappop(Q)
-        if d < dist[u]:
-            dist[u] = d
-        for v in graph[u]:
-            if dist[v] > dist[u] + graph[u][v]:
-                dist[v] = dist[u] + graph[u][v]
-                heappush(Q, (dist[v], v))
-    return dist
+    def min_distance(self, dist, min_dist_set):
+        """
+        Find the vertex that is closest to the visited set
+        """
+        min_dist = float("inf")
+        for target in range(self.vertex_count):
+            if min_dist_set[target]:
+                continue
+            if dist[target] < min_dist:
+                min_dist = dist[target]
+                min_index = target
+        return min_index
 
-graph = read_graph("graph.txt")
-print dijkstra(graph, 1)
+    def dijkstra(self, src):
+        """
+        Given a node, returns the shortest distance to every other node
+        """
+        dist = [float("inf")] * self.vertex_count
+        dist[src] = 0
+        min_dist_set = [False] * self.vertex_count
+
+        for _ in range(self.vertex_count):
+            #minimum distance vertex that is not processed
+            source = self.min_distance(dist, min_dist_set)
+
+            #put minimum distance vertex in shortest tree
+            min_dist_set[source] = True
+
+            #Update dist value of the adjacent vertices
+            for target in range(self.vertex_count):
+                if self.graph[source][target] <= 0 or min_dist_set[target]:
+                    continue
+                if dist[target] > dist[source] + self.graph[source][target]:
+                    dist[target] = dist[source] + self.graph[source][target]
+
+        return dist

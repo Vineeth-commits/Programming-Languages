@@ -1,310 +1,724 @@
-"""Strings.
+from algorithms.strings import (
+    add_binary,
+    match_symbol, match_symbol_1, bracket,
+    decode_string,
+    delete_reoccurring_characters,
+    domain_name_1, domain_name_2,
+    encode, decode,
+    group_anagrams,
+    int_to_roman,
+    is_palindrome, is_palindrome_reverse,
+    is_palindrome_two_pointer, is_palindrome_stack, is_palindrome_deque,
+    is_rotated, is_rotated_v1,
+    license_number,
+    make_sentence,
+    is_merge_recursive, is_merge_iterative,
+    multiply,
+    is_one_edit, is_one_edit2,
+    rabin_karp,
+    ultra_pythonic, iterative, recursive, pythonic,
+    reverse_vowel,
+    reverse_words,
+    roman_to_int,
+    is_valid_coordinates_0,
+    word_squares,
+    convert_morse_word, unique_morse,
+    judge_circle,
+    strong_password,
+    caesar_cipher,
+    check_pangram,
+    contain_string,
+    count_binary_substring,
+    repeat_string,
+    text_justification,
+    min_distance,
+    longest_common_prefix_v1, longest_common_prefix_v2,
+    longest_common_prefix_v3,
+    rotate, rotate_alt,
+    first_unique_char,
+    repeat_substring,
+    atbash,
+    longest_palindrome,
+    knuth_morris_pratt,
+    panagram,
+    fizzbuzz
+)
 
-@see: https://docs.python.org/3/tutorial/introduction.html
-@see: https://www.w3schools.com/python/python_strings.asp
-@see: https://www.w3schools.com/python/python_ref_string.asp
-
-Besides numbers, Python can also manipulate strings, which can be
-expressed in several ways. They can be enclosed in single quotes ('...')
-or double quotes ("...") with the same result.
-"""
-
-import pytest
-
-
-def test_string_type():
-    """String type"""
-
-    # String with double quotes.
-    name_1 = "John"
-    # String with single quotes.
-    name_2 = 'John'
-    # Strings created with different kind of quotes are treated the same.
-    assert name_1 == name_2
-    assert isinstance(name_1, str)
-    assert isinstance(name_2, str)
-
-    # \ can be used to escape quotes.
-    # use \' to escape the single quote or use double quotes instead.
-    single_quote_string = 'doesn\'t'
-    double_quote_string = "doesn't"
-
-    assert single_quote_string == double_quote_string
-
-    # \n means newline.
-    multiline_string = 'First line.\nSecond line.'
-    # Without print(), \n is included in the output.
-    # But with print(), \n produces a new line.
-    assert multiline_string == 'First line.\nSecond line.'
-
-    # Strings can be indexed, with the first character having index 0.
-    # There is no separate character type; a character is simply a string
-    # of size one. Note that since -0 is the same as 0, negative indices
-    # start from -1.
-    word = 'Python'
-    assert word[0] == 'P'  # First character.
-    assert word[5] == 'n'  # Fifth character.
-    assert word[-1] == 'n'  # Last character.
-    assert word[-2] == 'o'  # Second-last character.
-    assert word[-6] == 'P'  # Sixth from the end or zeroth from the beginning.
-
-    assert isinstance(word[0], str)
-
-    # In addition to indexing, slicing is also supported. While indexing is
-    # used to obtain individual characters, slicing allows you to obtain
-    # substring:
-    assert word[0:2] == 'Py'  # Characters from position 0 (included) to 2 (excluded).
-    assert word[2:5] == 'tho'  # Characters from position 2 (included) to 5 (excluded).
-
-    # Note how the start is always included, and the end always excluded.
-    # This makes sure that s[:i] + s[i:] is always equal to s:
-    assert word[:2] + word[2:] == 'Python'
-    assert word[:4] + word[4:] == 'Python'
-
-    # Slice indices have useful defaults; an omitted first index defaults to
-    # zero, an omitted second index defaults to the size of the string being
-    # sliced.
-    assert word[:2] == 'Py'  # Character from the beginning to position 2 (excluded).
-    assert word[4:] == 'on'  # Characters from position 4 (included) to the end.
-    assert word[-2:] == 'on'  # Characters from the second-last (included) to the end.
-
-    # One way to remember how slices work is to think of the indices as
-    # pointing between characters, with the left edge of the first character
-    # numbered 0. Then the right edge of the last character of a string of n
-    # characters has index n, for example:
-    #
-    # +---+---+---+---+---+---+
-    #  | P | y | t | h | o | n |
-    #  +---+---+---+---+---+---+
-    #  0   1   2   3   4   5   6
-    # -6  -5  -4  -3  -2  -1
-
-    # Attempting to use an index that is too large will result in an error.
-    with pytest.raises(Exception):
-        not_existing_character = word[42]
-        assert not not_existing_character
-
-    # However, out of range slice indexes are handled gracefully when used
-    # for slicing:
-    assert word[4:42] == 'on'
-    assert word[42:] == ''
-
-    # Python strings cannot be changed — they are immutable. Therefore,
-    # assigning to an indexed position in the string
-    # results in an error:
-    with pytest.raises(Exception):
-        # pylint: disable=unsupported-assignment-operation
-        word[0] = 'J'
-
-    # If you need a different string, you should create a new one:
-    assert 'J' + word[1:] == 'Jython'
-    assert word[:2] + 'py' == 'Pypy'
-
-    # The built-in function len() returns the length of a string:
-    characters = 'supercalifragilisticexpialidocious'
-    assert len(characters) == 34
-
-    # String literals can span multiple lines. One way is using triple-quotes: """..."""
-    # or '''...'''. End of lines are automatically included in the string, but it’s possible
-    # to prevent this by adding a \ at the end of the line. The following example:
-    multi_line_string = '''\
-        First line
-        Second line
-    '''
-
-    assert multi_line_string == '''\
-        First line
-        Second line
-    '''
+import unittest
 
 
-def test_string_operators():
-    """Basic operations
+class TestAddBinary(unittest.TestCase):
+    """[summary]
+    Test for the file add_binary.py
 
-    Strings can be concatenated (glued together) with the + operator,
-    and repeated with *: 3 times 'un', followed by 'ium'
+    Arguments:
+        unittest {[type]} -- [description]
     """
 
-    assert 3 * 'un' + 'ium' == 'unununium'
-
-    # 'Py' 'thon'
-    python = 'Py' 'thon'
-    assert python == 'Python'
-
-    # This feature is particularly useful when you want to break long strings:
-    text = (
-        'Put several strings within parentheses '
-        'to have them joined together.'
-    )
-    assert text == 'Put several strings within parentheses to have them joined together.'
-
-    # If you want to concatenate variables or a variable and a literal, use +:
-    prefix = 'Py'
-    assert prefix + 'thon' == 'Python'
+    def test_add_binary(self):
+        self.assertEqual("100", add_binary("11", "1"))
+        self.assertEqual("101", add_binary("100", "1"))
+        self.assertEqual("10", add_binary("1", "1"))
 
 
-def test_string_methods():
-    """String methods"""
+class TestBreakingBad(unittest.TestCase):
+    """[summary]
+    Test for the file breaking_bad.py
 
-    hello_world_string = "Hello, World!"
-
-    # The strip() method removes any whitespace from the beginning or the end.
-    string_with_whitespaces = " Hello, World! "
-    assert string_with_whitespaces.strip() == "Hello, World!"
-
-    # The len() method returns the length of a string.
-    assert len(hello_world_string) == 13
-
-    # The lower() method returns the string in lower case.
-    assert hello_world_string.lower() == 'hello, world!'
-
-    # The upper() method returns the string in upper case.
-    assert hello_world_string.upper() == 'HELLO, WORLD!'
-
-    # The replace() method replaces a string with another string.
-    assert hello_world_string.replace('H', 'J') == 'Jello, World!'
-
-    # The split() method splits the string into substrings if it finds instances of the separator.
-    assert hello_world_string.split(',') == ['Hello', ' World!']
-
-    # Converts the first character to upper case
-    assert 'low letter at the beginning'.capitalize() == 'Low letter at the beginning'
-
-    # Returns the number of times a specified value occurs in a string.
-    assert 'low letter at the beginning'.count('t') == 4
-
-    # Searches the string for a specified value and returns the position of where it was found.
-    assert 'Hello, welcome to my world'.find('welcome') == 7
-
-    # Converts the first character of each word to upper case
-    assert 'Welcome to my world'.title() == 'Welcome To My World'
-
-    # Returns a string where a specified value is replaced with a specified value.
-    assert 'I like bananas'.replace('bananas', 'apples') == 'I like apples'
-
-    # Joins the elements of an iterable to the end of the string.
-    my_tuple = ('John', 'Peter', 'Vicky')
-    assert ', '.join(my_tuple) == 'John, Peter, Vicky'
-
-    # Returns True if all characters in the string are upper case.
-    assert 'ABC'.isupper()
-    assert not 'AbC'.isupper()
-
-    # Check if all the characters in the text are letters.
-    assert 'CompanyX'.isalpha()
-    assert not 'Company 23'.isalpha()
-
-    # Returns True if all characters in the string are decimals.
-    assert '1234'.isdecimal()
-    assert not 'a21453'.isdecimal()
-
-
-def test_string_formatting():
-    """String formatting.
-
-    Often you’ll want more control over the formatting of your output than simply printing
-    space-separated values. There are several ways to format output
+    Arguments:
+        unittest {[type]} -- [description]
     """
 
-    # To use formatted string literals, begin a string with f or F before the opening quotation
-    # mark or triple quotation mark. Inside this string, you can write a Python expression
-    # between { and } characters that can refer to variables or literal values.
-    year = 2018
-    event = 'conference'
+    def setUp(self):
+        self.words = ['Amazon', 'Microsoft', 'Google']
+        self.symbols = ['i', 'Am', 'cro', 'le', 'abc']
+        self.result = ['M[i]crosoft', '[Am]azon', 'Mi[cro]soft', 'Goog[le]']
 
-    assert f'Results of the {year} {event}' == 'Results of the 2018 conference'
+    def test_match_symbol(self):
+        self.assertEqual(self.result, match_symbol(self.words, self.symbols))
 
-    # The str.format() method of strings requires more manual effort. You’ll still use { and } to
-    # mark where a variable will be substituted and can provide detailed formatting directives,
-    # but you’ll also need to provide the information to be formatted.
-    yes_votes = 42_572_654  # equivalent of 42572654
-    no_votes = 43_132_495   # equivalent of 43132495
-    percentage = yes_votes / (yes_votes + no_votes)
+    def test_match_symbol_1(self):
+        self.assertEqual(['[Am]azon', 'Mi[cro]soft', 'Goog[le]'],
+                         match_symbol_1(self.words, self.symbols))
 
-    assert '{:-9} YES votes  {:2.2%}'.format(yes_votes, percentage) == ' 42572654 YES votes  49.67%'
+    def test_bracket(self):
+        self.assertEqual(('[Am]azon', 'Mi[cro]soft', 'Goog[le]'),
+                         bracket(self.words, self.symbols))
+        self.assertEqual(('Amazon', 'Microsoft', 'Google'),
+                         bracket(self.words, ['thisshouldnotmatch']))
+        self.assertEqual(('Amazon', 'M[i]crosoft', 'Google'),
+                         bracket(self.words, ['i', 'i']))
 
-    # When you don’t need fancy output but just want a quick display of some variables for debugging
-    # purposes, you can convert any value to a string with the repr() or str() functions. The str()
-    # function is meant to return representations of values which are fairly human-readable, while
-    # repr() is meant to generate representations which can be read by the interpreter (or will
-    # force a SyntaxError if there is no equivalent syntax). For objects which don’t have a
-    # particular representation for human consumption, str() will return the same value as repr().
-    # Many values, such as numbers or structures like lists and dictionaries, have the same
-    # representation using either function. Strings, in particular, have two distinct
-    # representations.
 
-    greeting = 'Hello, world.'
-    first_num = 10 * 3.25
-    second_num = 200 * 200
+class TestDecodeString(unittest.TestCase):
+    """[summary]
+    Test for the file decode_string.py
 
-    assert str(greeting) == 'Hello, world.'
-    assert repr(greeting) == "'Hello, world.'"
-    assert str(1/7) == '0.14285714285714285'
+    Arguments:
+        unittest {[type]} -- [description]
+    """
 
-    # The argument to repr() may be any Python object:
-    assert repr((first_num, second_num, ('spam', 'eggs'))) == "(32.5, 40000, ('spam', 'eggs'))"
+    def test_decode_string(self):
+        self.assertEqual("aaabcbc", decode_string("3[a]2[bc]"))
+        self.assertEqual("accaccacc", decode_string("3[a2[c]]"))
 
-    # Formatted String Literals
 
-    # Formatted string literals (also called f-strings for short) let you include the value of
-    # Python expressions inside a string by prefixing the string with f or F and writing
-    # expressions as {expression}.
+class TestDeleteReoccurring(unittest.TestCase):
+    """[summary]
+    Test for the file delete_reoccurring.py
 
-    # An optional format specifier can follow the expression. This allows greater control over how
-    # the value is formatted. The following example rounds pi to three places after the decimal.
-    pi_value = 3.14159
-    assert f'The value of pi is {pi_value:.3f}.' == 'The value of pi is 3.142.'
+    Arguments:
+        unittest {[type]} -- [description]
+    """
 
-    # Passing an integer after the ':' will cause that field to be a minimum number of characters
-    # wide. This is useful for making columns line up:
-    table_data = {'Sjoerd': 4127, 'Jack': 4098, 'Dcab': 7678}
-    table_string = ''
-    for name, phone in table_data.items():
-        table_string += f'{name:7}==>{phone:7d}'
+    def test_delete_reoccurring_characters(self):
+        self.assertEqual("abc", delete_reoccurring_characters("aaabcccc"))
 
-    assert table_string == ('Sjoerd ==>   4127'
-                            'Jack   ==>   4098'
-                            'Dcab   ==>   7678')
 
-    # The String format() Method
+class TestDomainExtractor(unittest.TestCase):
+    """[summary]
+    Test for the file domain_extractor.py
 
-    # Basic usage of the str.format() method looks like this:
-    assert 'We are {} who say "{}!"'.format('knights', 'Ni') == 'We are knights who say "Ni!"'
+    Arguments:
+        unittest {[type]} -- [description]
+    """
 
-    # The brackets and characters within them (called format fields) are replaced with the objects
-    # passed into the str.format() method. A number in the brackets can be used to refer to the
-    # position of the object passed into the str.format() method
-    assert '{0} and {1}'.format('spam', 'eggs') == 'spam and eggs'
-    assert '{1} and {0}'.format('spam', 'eggs') == 'eggs and spam'
+    def test_valid(self):
+        self.assertEqual(domain_name_1("https://github.com/SaadBenn"),
+                         "github")
 
-    # If keyword arguments are used in the str.format() method, their values are referred to by
-    # using the name of the argument.
-    formatted_string = 'This {food} is {adjective}.'.format(
-        food='spam',
-        adjective='absolutely horrible'
-    )
+    def test_invalid(self):
+        self.assertEqual(domain_name_2("http://google.com"), "google")
 
-    assert formatted_string == 'This spam is absolutely horrible.'
 
-    # Positional and keyword arguments can be arbitrarily combined
-    formatted_string = 'The story of {0}, {1}, and {other}.'.format(
-        'Bill',
-        'Manfred',
-        other='Georg'
-    )
+class TestEncodeDecode(unittest.TestCase):
+    """[summary]
+    Test for the file encode_decode.py
 
-    assert formatted_string == 'The story of Bill, Manfred, and Georg.'
+    Arguments:
+        unittest {[type]} -- [description]
+    """
 
-    # If you have a really long format string that you don’t want to split up, it would be nice if
-    # you could reference the variables to be formatted by name instead of by position. This can be
-    # done by simply passing the dict and using square brackets '[]' to access the keys
+    def test_encode(self):
+        self.assertEqual("4:keon2:is7:awesome", encode("keon is awesome"))
 
-    table = {'Sjoerd': 4127, 'Jack': 4098, 'Dcab': 8637678}
-    formatted_string = 'Jack: {0[Jack]:d}; Sjoerd: {0[Sjoerd]:d}; Dcab: {0[Dcab]:d}'.format(table)
+    def test_decode(self):
+        self.assertEqual(['keon', 'is', 'awesome'],
+                         decode("4:keon2:is7:awesome"))
 
-    assert formatted_string == 'Jack: 4098; Sjoerd: 4127; Dcab: 8637678'
 
-    # This could also be done by passing the table as keyword arguments with the ‘**’ notation.
-    formatted_string = 'Jack: {Jack:d}; Sjoerd: {Sjoerd:d}; Dcab: {Dcab:d}'.format(**table)
+class TestGroupAnagrams(unittest.TestCase):
+    """[summary]
+    Test for the file group_anagrams.py
 
-    assert formatted_string == 'Jack: 4098; Sjoerd: 4127; Dcab: 8637678'
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_group_anagrams(self):
+        self.assertEqual([['eat', 'tea', 'ate'], ['tan', 'nat'], ['bat']], \
+                         group_anagrams(["eat", "tea", "tan", "ate", "nat",
+                                        "bat"]))
+
+
+class TestIntToRoman(unittest.TestCase):
+    """[summary]
+    Test for the file int_to_roman.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_int_to_roman(self):
+        self.assertEqual("DCXLIV", int_to_roman(644))
+        self.assertEqual("I", int_to_roman(1))
+        self.assertEqual("MMMCMXCIX", int_to_roman(3999))
+
+
+class TestIsPalindrome(unittest.TestCase):
+    """[summary]
+    Test for the file is_palindrome.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_is_palindrome(self):
+        # 'Otto' is a old german name.
+        self.assertTrue(is_palindrome("Otto"))
+        self.assertFalse(is_palindrome("house"))
+
+    def test_is_palindrome_reverse(self):
+        # 'Otto' is a old german name.
+        self.assertTrue(is_palindrome_reverse("Otto"))
+        self.assertFalse(is_palindrome_reverse("house"))
+
+    def test_is_palindrome_two_pointer(self):
+        # 'Otto' is a old german name.
+        self.assertTrue(is_palindrome_two_pointer("Otto"))
+        self.assertFalse(is_palindrome_two_pointer("house"))
+
+    def test_is_palindrome_stack(self):
+        # 'Otto' is a old german name.
+        self.assertTrue(is_palindrome_stack("Otto"))
+        self.assertFalse(is_palindrome_stack("house"))
+
+    def test_is_palindrome_deque(self):
+        # 'Otto' is a old german name.
+        self.assertTrue(is_palindrome_deque("Otto"))
+        self.assertFalse(is_palindrome_deque("house"))
+
+
+class TestIsRotated(unittest.TestCase):
+    """[summary]
+    Test for the file is_rotated.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_is_rotated(self):
+        self.assertTrue(is_rotated("hello", "hello"))
+        self.assertTrue(is_rotated("hello", "llohe"))
+        self.assertFalse(is_rotated("hello", "helol"))
+        self.assertFalse(is_rotated("hello", "lloh"))
+        self.assertTrue(is_rotated("", ""))
+
+    def test_is_rotated_v1(self):
+        self.assertTrue(is_rotated_v1("hello", "hello"))
+        self.assertTrue(is_rotated_v1("hello", "llohe"))
+        self.assertFalse(is_rotated_v1("hello", "helol"))
+        self.assertFalse(is_rotated_v1("hello", "lloh"))
+        self.assertTrue(is_rotated_v1("", ""))
+
+
+class TestRotated(unittest.TestCase):
+    def test_rotate(self):
+        self.assertEqual("llohe", rotate("hello", 2))
+        self.assertEqual("hello", rotate("hello", 5))
+        self.assertEqual("elloh", rotate("hello", 6))
+        self.assertEqual("llohe", rotate("hello", 7))
+
+    def test_rotate_alt(self):
+        self.assertEqual("llohe", rotate_alt("hello", 2))
+        self.assertEqual("hello", rotate_alt("hello", 5))
+        self.assertEqual("elloh", rotate_alt("hello", 6))
+        self.assertEqual("llohe", rotate_alt("hello", 7))
+
+
+class TestLicenseNumber(unittest.TestCase):
+    """[summary]
+    Test for the file license_number.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_license_number(self):
+        self.assertEqual("a-b-c-d-f-d-d-f", license_number("a-bc-dfd-df", 1))
+        self.assertEqual("ab-cd-fd-df", license_number("a-bc-dfd-df", 2))
+        self.assertEqual("ab-cdf-ddf", license_number("a-bc-dfd-df", 3))
+        self.assertEqual("abcd-fddf", license_number("a-bc-dfd-df", 4))
+        self.assertEqual("abc-dfddf", license_number("a-bc-dfd-df", 5))
+
+
+class TestMakeSentence(unittest.TestCase):
+    """[summary]
+    Test for the file make_sentence.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_make_sentence(self):
+        dictionarys = ["", "app", "let", "t", "apple", "applet"]
+        word = "applet"
+        self.assertTrue(make_sentence(word, dictionarys))
+
+
+class TestMergeStringChecker(unittest.TestCase):
+    """[summary]
+    Test for the file merge_string_checker.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_is_merge_recursive(self):
+        self.assertTrue(is_merge_recursive("codewars", "cdw", "oears"))
+
+    def test_is_merge_iterative(self):
+        self.assertTrue(is_merge_iterative("codewars", "cdw", "oears"))
+
+
+class TestMultiplyStrings(unittest.TestCase):
+    """[summary]
+    Test for the file multiply_strings.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_multiply(self):
+        self.assertEqual("23", multiply("1", "23"))
+        self.assertEqual("529", multiply("23", "23"))
+        self.assertEqual("0", multiply("0", "23"))
+        self.assertEqual("1000000", multiply("100", "10000"))
+
+
+class TestOneEditDistance(unittest.TestCase):
+    """[summary]
+    Test for the file one_edit_distance.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_is_one_edit(self):
+        self.assertTrue(is_one_edit("abc", "abd"))
+        self.assertFalse(is_one_edit("abc", "aed"))
+        self.assertFalse(is_one_edit("abcd", "abcd"))
+
+    def test_is_one_edit2(self):
+        self.assertTrue(is_one_edit2("abc", "abd"))
+        self.assertFalse(is_one_edit2("abc", "aed"))
+        self.assertFalse(is_one_edit2("abcd", "abcd"))
+
+
+class TestRabinKarp(unittest.TestCase):
+    """[summary]
+    Test for the file rabin_karp.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_rabin_karp(self):
+        self.assertEqual(3, rabin_karp("abc", "zsnabckfkd"))
+        self.assertEqual(None, rabin_karp("abc", "zsnajkskfkd"))
+
+
+class TestReverseString(unittest.TestCase):
+    """[summary]
+    Test for the file reverse_string.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_recursive(self):
+        self.assertEqual("ereht olleh", recursive("hello there"))
+
+    def test_iterative(self):
+        self.assertEqual("ereht olleh", iterative("hello there"))
+
+    def test_pythonic(self):
+        self.assertEqual("ereht olleh", pythonic("hello there"))
+
+    def test_ultra_pythonic(self):
+        self.assertEqual("ereht olleh", ultra_pythonic("hello there"))
+
+
+class TestReverseVowel(unittest.TestCase):
+    """[summary]
+    Test for the file reverse_vowel.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_reverse_vowel(self):
+        self.assertEqual("holle", reverse_vowel("hello"))
+
+
+class TestReverseWords(unittest.TestCase):
+    """[summary]
+    Test for the file reverse_words.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_reverse_words(self):
+        self.assertEqual("pizza like I and kim keon am I", \
+                         reverse_words("I am keon kim and I like pizza"))
+
+
+class TestRomanToInt(unittest.TestCase):
+    """[summary]
+    Test for the file roman_to_int.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_roman_to_int(self):
+        self.assertEqual(621, roman_to_int("DCXXI"))
+        self.assertEqual(1, roman_to_int("I"))
+        self.assertEqual(3999, roman_to_int("MMMCMXCIX"))
+
+
+# class TestStripUrlParams(unittest.TestCase):
+#     """[summary]
+#     Test for the file strip_urls_params.py
+
+#     Arguments:
+#         unittest {[type]} -- [description]
+#     """
+
+#     def test_strip_url_params1(self):
+#         self.assertEqual(strip_url_params1("www.saadbenn.com?a=1&b=2&a=2"),
+#                         "www.saadbenn.com?a=1&b=2")
+#         self.assertEqual(strip_url_params1("www.saadbenn.com?a=1&b=2",
+#                          ['b']), "www.saadbenn.com?a=1")
+#     def test_strip_url_params2(self):
+#         self.assertEqual(strip_url_params2("www.saadbenn.com?a=1&b=2&a=2"),
+#                         "www.saadbenn.com?a=1&b=2")
+#         self.assertEqual(strip_url_params2("www.saadbenn.com?a=1&b=2",
+#                         'b']), "www.saadbenn.com?a=1")
+#     def test_strip_url_params3(self):
+#         self.assertEqual(strip_url_params3("www.saadbenn.com?a=1&b=2&a=2"),
+#                         "www.saadbenn.com?a=1&b=2")
+#         self.assertEqual(strip_url_params3("www.saadbenn.com?a=1&b=2",
+#                         ['b']), "www.saadbenn.com?a=1")
+
+
+class TestValidateCoordinates(unittest.TestCase):
+    """[summary]
+    Test for the file validate_coordinates.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_valid(self):
+        valid_coordinates = ["-23, 25", "4, -3", "90, 180", "-90, -180"]
+        for coordinate in valid_coordinates:
+            self.assertTrue(is_valid_coordinates_0(coordinate))
+
+    def test_invalid(self):
+        invalid_coordinates = ["23.234, - 23.4234", "99.234, 12.324",
+                               "6.325624, 43.34345.345", "0, 1,2",
+                               "23.245, 1e1"]
+        for coordinate in invalid_coordinates:
+            self.assertFalse(is_valid_coordinates_0(coordinate))
+
+
+class TestWordSquares(unittest.TestCase):
+    """[summary]
+    Test for the file word_squares.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_word_squares(self):
+        self.assertEqual([['wall', 'area', 'lead', 'lady'], ['ball', 'area',
+                         'lead', 'lady']], \
+                         word_squares(["area", "lead", "wall",
+                                      "lady", "ball"]))
+
+
+class TestUniqueMorse(unittest.TestCase):
+    def test_convert_morse_word(self):
+        self.assertEqual("--...-.", convert_morse_word("gin"))
+        self.assertEqual("--...--.", convert_morse_word("msg"))
+
+    def test_unique_morse(self):
+        self.assertEqual(2, unique_morse(["gin", "zen", "gig", "msg"]))
+
+
+class TestJudgeCircle(unittest.TestCase):
+    def test_judge_circle(self):
+        self.assertTrue(judge_circle("UDLRUD"))
+        self.assertFalse(judge_circle("LLRU"))
+
+
+class TestStrongPassword(unittest.TestCase):
+    def test_strong_password(self):
+        self.assertEqual(3, strong_password(3, "Ab1"))
+        self.assertEqual(1, strong_password(11, "#Algorithms"))
+
+
+class TestCaesarCipher(unittest.TestCase):
+    def test_caesar_cipher(self):
+        self.assertEqual("Lipps_Asvph!", caesar_cipher("Hello_World!", 4))
+        self.assertEqual("okffng-Qwvb", caesar_cipher("middle-Outz", 2))
+
+
+class TestCheckPangram(unittest.TestCase):
+    def test_check_pangram(self):
+        self.assertTrue(check_pangram("The quick brown fox jumps over the lazy dog"))
+        self.assertFalse(check_pangram("The quick brown fox"))
+
+
+class TestContainString(unittest.TestCase):
+    def test_contain_string(self):
+        self.assertEqual(-1, contain_string("mississippi", "issipi"))
+        self.assertEqual(0, contain_string("Hello World", ""))
+        self.assertEqual(2, contain_string("hello", "ll"))
+
+
+class TestCountBinarySubstring(unittest.TestCase):
+    def test_count_binary_substring(self):
+        self.assertEqual(6, count_binary_substring("00110011"))
+        self.assertEqual(4, count_binary_substring("10101"))
+        self.assertEqual(3, count_binary_substring("00110"))
+
+
+class TestCountBinarySubstring(unittest.TestCase):
+    def test_repeat_string(self):
+        self.assertEqual(3, repeat_string("abcd", "cdabcdab"))
+        self.assertEqual(4, repeat_string("bb", "bbbbbbb"))
+
+
+class TestTextJustification(unittest.TestCase):
+    def test_text_justification(self):
+        self.assertEqual(["This    is    an",
+                          "example  of text",
+                          "justification.  "],
+                         text_justification(["This", "is", "an", "example",
+                                             "of", "text",
+                                             "justification."], 16)
+                         )
+
+        self.assertEqual(["What   must   be",
+                          "acknowledgment  ",
+                          "shall be        "],
+                         text_justification(["What", "must", "be",
+                                             "acknowledgment", "shall",
+                                             "be"], 16)
+                         )
+
+
+class TestMinDistance(unittest.TestCase):
+    def test_min_distance(self):
+        self.assertEqual(2, min_distance("sea", "eat"))
+        self.assertEqual(6, min_distance("abAlgocrithmf", "Algorithmmd"))
+
+
+class TestLongestCommonPrefix(unittest.TestCase):
+    def test_longest_common_prefix(self):
+        # Test first solution
+        self.assertEqual("fl", longest_common_prefix_v1(["flower", "flow",
+                                                        "flight"]))
+        self.assertEqual("", longest_common_prefix_v1(["dog", "racecar",
+                                                      "car"]))
+        # Test second solution
+        self.assertEqual("fl", longest_common_prefix_v2(["flower", "flow",
+                                                        "flight"]))
+        self.assertEqual("", longest_common_prefix_v2(["dog", "racecar",
+                                                      "car"]))
+        # Test third solution
+        self.assertEqual("fl", longest_common_prefix_v3(["flower", "flow",
+                                                        "flight"]))
+        self.assertEqual("", longest_common_prefix_v3(["dog", "racecar",
+                                                      "car"]))
+
+
+class TestFirstUniqueChar(unittest.TestCase):
+    def test_first_unique_char(self):
+        self.assertEqual(0, first_unique_char("leetcode"))
+        self.assertEqual(2, first_unique_char("loveleetcode"))
+
+
+class TestRepeatSubstring(unittest.TestCase):
+    def test_repeat_substring(self):
+        self.assertTrue(repeat_substring("abab"))
+        self.assertFalse(repeat_substring("aba"))
+        self.assertTrue(repeat_substring("abcabcabcabc"))
+
+
+class TestAtbashCipher(unittest.TestCase):
+    """[summary]
+    Test for the file atbash_cipher.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_atbash_cipher(self):
+        self.assertEqual("zyxwvutsrqponml", atbash("abcdefghijklmno"))
+        self.assertEqual("KbgslM", atbash("PythoN"))
+        self.assertEqual("AttaCK at DawN", atbash("ZggzXP zg WzdM"))
+        self.assertEqual("ZggzXP zg WzdM", atbash("AttaCK at DawN"))
+
+
+class TestLongestPalindromicSubstring(unittest.TestCase):
+    """[summary]
+    Test for the file longest_palindromic_substring.py
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+    def test_longest_palindromic_substring(self):
+        self.assertEqual("bb", longest_palindrome("cbbd"))
+        self.assertEqual("abba", longest_palindrome("abba"))
+        self.assertEqual("asdadsa", longest_palindrome("dasdasdasdasdasdadsa"))
+        self.assertEqual("abba", longest_palindrome("cabba"))
+
+
+class TestKnuthMorrisPratt(unittest.TestCase):
+    """[summary]
+    Test for the file knuth_morris_pratt.py
+
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_knuth_morris_pratt(self):
+        self.assertEqual([0, 1, 2, 3, 4], knuth_morris_pratt("aaaaaaa", "aaa"))
+        self.assertEqual([0, 4], knuth_morris_pratt("abcdabc", "abc"))
+        self.assertEqual([], knuth_morris_pratt("aabcdaab", "aba"))
+        self.assertEqual([0, 4], knuth_morris_pratt([0,0,1,1,0,0,1,0], [0,0]))
+
+
+class TestPanagram(unittest.TestCase):
+    """[summary]
+    Test for the file panagram.py
+
+    Arguments:
+        unittest {[type]} -- [description]
+    """
+
+    def test_empty_string(self):
+        # Arrange
+        string = ""
+
+        # Act
+        res = panagram(string)
+
+        # Assert
+        self.assertEqual(False, res)
+
+    def test_single_word_non_panagram(self):
+        # Arrange
+        string = "sentence"
+
+        # Act
+        res = panagram(string)
+
+        # Assert
+        self.assertEqual(False, res)
+
+    def test_fox_panagram_no_spaces(self):
+        # Arrange
+        string = "thequickbrownfoxjumpsoverthelazydog"
+
+        # Act
+        res = panagram(string)
+
+        # Assert
+        self.assertEqual(True, res)
+
+    def test_fox_panagram_mixed_case(self):
+        # Arrange
+        string = "theqUiCkbrOwnfOxjUMPSOVErThELAzYDog"
+
+        # Act
+        res = panagram(string)
+
+        # Assert
+        self.assertEqual(True, res)
+
+    def test_whitespace_punctuation(self):
+        # Arrange
+        string = "\n\t\r,.-_!?"
+
+        # Act
+        res = panagram(string)
+
+        # Assert
+        self.assertEqual(False, res)
+
+    def test_fox_panagram(self):
+        # Arrange
+        string = "the quick brown fox jumps over the lazy dog"
+
+        # Act
+        res = panagram(string)
+
+        # Assert
+        self.assertEqual(True, res)
+
+    def test_swedish_panagram(self):
+        # Arrange
+        string = "Yxmördaren Julia Blomqvist på fäktning i Schweiz"
+
+        # Act
+        res = panagram(string)
+
+        # Assert
+        self.assertEqual(True, res)
+
+
+class TestFizzbuzz(unittest.TestCase):
+    """[summary]
+    Tests for the fizzbuzz method in file fizzbuzz.py
+    """
+    def test_fizzbuzz(self):
+        # Testing that n < 0 returns a Value Error
+        self.assertRaises(ValueError, fizzbuzz.fizzbuzz, -2)
+
+        # Testing that a string returns a Type Error.
+        self.assertRaises(TypeError, fizzbuzz.fizzbuzz, "hello")
+
+        # Testing a base case, n = 3
+        result = fizzbuzz.fizzbuzz(3)
+        expected = [1, 2, "Fizz"]
+        self.assertEqual(result, expected)
+
+        # Testing a base case, n = 5
+        result = fizzbuzz.fizzbuzz(5)
+        expected = [1, 2, "Fizz", 4, "Buzz"]
+        self.assertEqual(result, expected)
+
+        # Testing a base case, n = 15 i.e. mod 3 and 5
+        result = fizzbuzz.fizzbuzz(15)
+        expected = [1, 2, "Fizz", 4, "Buzz", "Fizz", 7, 8, "Fizz", "Buzz", 11,
+                    "Fizz", 13, 14, "FizzBuzz"]
+        self.assertEqual(result, expected)
+
+
+if __name__ == "__main__":
+    unittest.main()

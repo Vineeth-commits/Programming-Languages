@@ -1,36 +1,51 @@
-from sorting import mergesort
+"""
+Binary Search
 
+Find an element in a sorted array (in ascending order).
+"""
 
-def search(arr, item):
-    """Performs binary search on an array
-    with the given item and returns True or
-    False.
+# For Binary Search, T(N) = T(N/2) + O(1) // the recurrence relation
+# Apply Masters Theorem for computing Run time complexity of recurrence relations:
+#       T(N) = aT(N/b) + f(N)
+# Here,
+#       a = 1, b = 2 => log (a base b) = 1
+# also, here
+#       f(N) = n^c log^k(n)  // k = 0 & c = log (a base b)
+# So,
+#       T(N) = O(N^c log^(k+1)N) = O(log(N))
 
->>> search([5, 4, 1, 6, 2, 3, 9, 7], 2)
-    True
+def binary_search(array, query):
+    """
+    Worst-case Complexity: O(log(n))
 
->>> search([5, 4, 1, 6, 2, 3, 9, 7], 8)
-    False
+    reference: https://en.wikipedia.org/wiki/Binary_search_algorithm
     """
 
-    arr = mergesort(arr)
+    low, high = 0, len(array) - 1
+    while low <= high:
+        mid = (high + low) // 2
+        val = array[mid]
+        if val == query:
+            return mid
 
-    first = 0
-    last = len(arr) - 1
-    found = False
-
-    while first <= last and not found:
-        midpoint = (first + last) // 2
-        if arr[midpoint] == item:
-            found = True
+        if val < query:
+            low = mid + 1
         else:
-            if item < arr[midpoint]:
-                last = midpoint - 1
-            else:
-                first = midpoint + 1
+            high = mid - 1
+    return None
 
-    return found
+def binary_search_recur(array, low, high, val):
+    """
+    Worst-case Complexity: O(log(n))
 
+    reference: https://en.wikipedia.org/wiki/Binary_search_algorithm
+    """
 
-print search([5, 4, 1, 6, 2, 3, 9, 7], 2)
-print search([5, 4, 1, 6, 2, 3, 9, 7], 8)
+    if low > high:       # error case
+        return -1
+    mid = (low + high) // 2
+    if val < array[mid]:
+        return binary_search_recur(array, low, mid - 1, val)
+    if val > array[mid]:
+        return binary_search_recur(array, mid + 1, high, val)
+    return mid

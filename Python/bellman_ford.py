@@ -1,44 +1,48 @@
-""" The bellman ford algorithm for calculating single source shortest
-paths - CLRS style """
-graph = { 
-    's' : {'t':6, 'y':7},
-    't' : {'x':5, 'z':-4, 'y':8 },
-    'y' : {'z':9, 'x':-3},
-    'z' : {'x':7, 's': 2},
-    'x' : {'t':-2}
-}
+"""
+Determination of single-source shortest-path.
+"""
 
-INF = float('inf')
+def bellman_ford(graph, source):
+    """
+    This Bellman-Ford Code is for determination whether we can get
+    shortest path from given graph or not for single-source shortest-paths problem.
+    In other words, if given graph has any negative-weight cycle that is reachable
+    from the source, then it will give answer False for "no solution exits".
+    For argument graph, it should be a dictionary type
+    such as
+    graph = {
+        'a': {'b': 6, 'e': 7},
+        'b': {'c': 5, 'd': -4, 'e': 8},
+        'c': {'b': -2},
+        'd': {'a': 2, 'c': 7},
+        'e': {'b': -3}
+    }
+    """
+    weight = {}
+    pre_node = {}
 
-dist = {}
-predecessor = {}
+    initialize_single_source(graph, source, weight, pre_node)
 
-def initialize_single_source(graph, s):
-    for v in graph:
-        dist[v] = INF
-        predecessor[v] = None
-    dist[s] = 0
-    
-def relax(graph, u, v):
-    if dist[v] > dist[u] + graph[u][v]:
-        dist[v] = dist[u] + graph[u][v]
-        predecessor[v] = u
+    for _ in range(1, len(graph)):
+        for node in graph:
+            for adjacent in graph[node]:
+                if weight[adjacent] > weight[node] + graph[node][adjacent]:
+                    weight[adjacent] = weight[node] + graph[node][adjacent]
+                    pre_node[adjacent] = node
 
-def bellman_ford(graph, s):
-    initialize_single_source(graph, s)
-    edges = [(u, v) for u in graph for v in graph[u].keys()]
-    number_vertices = len(graph)
-    for i in range(number_vertices-1):
-        for (u, v) in edges:
-            relax(graph, u, v)
-    for (u, v) in edges:
-        if dist[v] > dist[u] + graph[u][v]:
-            return False # there exists a negative cycle
+    for node in graph:
+        for adjacent in graph[node]:
+            if weight[adjacent] > weight[node] + graph[node][adjacent]:
+                return False
+
     return True
 
-def get_distances(graph, s):
-    if bellman_ford(graph, s):
-        return dist
-    return "Graph contains a negative cycle"
+def initialize_single_source(graph, source, weight, pre_node):
+    """
+    Initialize data structures for Bellman-Ford algorithm.
+    """
+    for node in graph:
+        weight[node] = float('inf')
+        pre_node[node] = None
 
-print get_distances(graph, 's')
+    weight[source] = 0

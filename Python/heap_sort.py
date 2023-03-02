@@ -1,49 +1,92 @@
-# This program is a comparison based sorting technique.
-# It is similar to selection sort in the sense that it first identifies the maximum element,
-# and places it at the end. We repeat the process until the list is sorted.
-# The sort algorithm has a time complexity of O(nlogn)
+def max_heap_sort(arr, simulation=False):
+    """ Heap Sort that uses a max heap to sort an array in ascending order
+        Complexity: O(n log(n))
+    """
+    iteration = 0
+    if simulation:
+        print("iteration",iteration,":",*arr)
+        
+    for i in range(len(arr) - 1, 0, -1):
+        iteration = max_heapify(arr, i, simulation, iteration)
+
+    if simulation:
+                iteration = iteration + 1
+                print("iteration",iteration,":",*arr)
+    return arr
 
 
-def refineHeap(arr, n, i):
-    # Initialize the largest entry as the root of the heap
-    largest = i
-    left = 2 * i + 1
-    right = 2 * i + 2
+def max_heapify(arr, end, simulation, iteration):
+    """ Max heapify helper for max_heap_sort
+    """
+    last_parent = (end - 1) // 2
 
-    # If the left child exists and it is larger than largest, replace it
-    if left < n and arr[largest] < arr[left]:
-        largest = left
+    # Iterate from last parent to first
+    for parent in range(last_parent, -1, -1):
+        current_parent = parent
 
-    # Perform the same operation for the right hand side of the heap
-    if right < n and arr[largest] < arr[right]:
-        largest = right
+        # Iterate from current_parent to last_parent
+        while current_parent <= last_parent:
+            # Find greatest child of current_parent
+            child = 2 * current_parent + 1
+            if child + 1 <= end and arr[child] < arr[child + 1]:
+                child = child + 1
 
-    # Change root if the largest value changed
-    if largest != i:
-        arr[i], arr[largest] = arr[largest], arr[i]
+            # Swap if child is greater than parent
+            if arr[child] > arr[current_parent]:
+                arr[current_parent], arr[child] = arr[child], arr[current_parent]
+                current_parent = child
+                if simulation:
+                    iteration = iteration + 1
+                    print("iteration",iteration,":",*arr)
+            # If no swap occurred, no need to keep iterating
+            else:
+                break
+    arr[0], arr[end] = arr[end], arr[0]
+    return iteration
 
-        # Repeat the process until the heap is fully defined
-        refineHeap(arr, n, largest)
+def min_heap_sort(arr, simulation=False):
+    """ Heap Sort that uses a min heap to sort an array in ascending order
+        Complexity: O(n log(n))
+    """
+    iteration = 0
+    if simulation:
+        print("iteration",iteration,":",*arr)
+        
+    for i in range(0, len(arr) - 1):
+        iteration = min_heapify(arr, i, simulation, iteration)
+
+    return arr
 
 
-# Main function
-def heapSort(arr):
-    n = len(arr)
+def min_heapify(arr, start, simulation, iteration):
+    """ Min heapify helper for min_heap_sort
+    """
+    # Offset last_parent by the start (last_parent calculated as if start index was 0)
+    # All array accesses need to be offset by start
+    end = len(arr) - 1
+    last_parent = (end - start - 1) // 2
 
-    # Make a heap
-    for i in range(n // 2 - 1, -1, -1):
-        refineHeap(arr, n, i)
+    # Iterate from last parent to first
+    for parent in range(last_parent, -1, -1):
+        current_parent = parent
 
-    # Extract elements individually
-    for i in range(n - 1, 0, -1):
-        # Fancy notation for swapping two values in an array
-        arr[i], arr[0] = arr[0], arr[i]
-        refineHeap(arr, i, 0)
-
-
-# Code that will run on start
-arr = [15, 29, 9, 3, 16, 7, 66, 4]
-print("Unsorted Array: ", arr)
-heapSort(arr)
-n = len(arr)
-print("Sorted array: ", arr)
+        # Iterate from current_parent to last_parent
+        while current_parent <= last_parent:
+            # Find lesser child of current_parent
+            child = 2 * current_parent + 1
+            if child + 1 <= end - start and arr[child + start] > arr[
+                child + 1 + start]:
+                child = child + 1
+            
+            # Swap if child is less than parent
+            if arr[child + start] < arr[current_parent + start]:
+                arr[current_parent + start], arr[child + start] = \
+                    arr[child + start], arr[current_parent + start]
+                current_parent = child
+                if simulation:
+                    iteration = iteration + 1
+                    print("iteration",iteration,":",*arr)
+            # If no swap occurred, no need to keep iterating
+            else:
+                break
+    return iteration
