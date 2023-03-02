@@ -1,74 +1,25 @@
-import CountingSort from '../CountingSort';
-import {
-  equalArr,
-  notSortedArr,
-  reverseArr,
-  sortedArr,
-  SortTester,
-} from '../../SortTester';
+import { countingSort } from '../CountingSort'
 
-// Complexity constants.
-const SORTED_ARRAY_VISITING_COUNT = 60;
-const NOT_SORTED_ARRAY_VISITING_COUNT = 60;
-const REVERSE_SORTED_ARRAY_VISITING_COUNT = 60;
-const EQUAL_ARRAY_VISITING_COUNT = 60;
+test('The countingSort of the array [3, 0, 2, 5, 4, 1] is [0, 1, 2, 3, 4, 5]', () => {
+  const array = [3, 0, 2, 5, 4, 1]
+  const res = countingSort(array, 0, 5)
+  expect(res).toEqual([0, 1, 2, 3, 4, 5])
+})
 
-describe('CountingSort', () => {
-  it('should sort array', () => {
-    SortTester.testSort(CountingSort);
-  });
+test('The countingSort of the array [6, 4, 2, 1, 3, 5] is [1, 2, 3, 4, 5, 6]', () => {
+  const array = [6, 4, 2, 1, 3, 5]
+  const res = countingSort(array, 1, 6)
+  expect(res).toEqual([1, 2, 3, 4, 5, 6])
+})
 
-  it('should sort negative numbers', () => {
-    SortTester.testNegativeNumbersSort(CountingSort);
-  });
+test('The countingSort of the array [11, 14, 12, 15, 16, 13] is [11, 12, 13, 14, 15, 16]', () => {
+  const array = [11, 14, 12, 15, 16, 13]
+  const res = countingSort(array, 11, 16)
+  expect(res).toEqual([11, 12, 13, 14, 15, 16])
+})
 
-  it('should allow to use specify max/min integer value in array to make sorting faster', () => {
-    const visitingCallback = jest.fn();
-    const sorter = new CountingSort({ visitingCallback });
-
-    // Detect biggest number in array in prior.
-    const biggestElement = Math.max(...notSortedArr);
-
-    // Detect smallest number in array in prior.
-    const smallestElement = Math.min(...notSortedArr);
-
-    const sortedArray = sorter.sort(notSortedArr, smallestElement, biggestElement);
-
-    expect(sortedArray).toEqual(sortedArr);
-    // Normally visitingCallback is being called 60 times but in this case
-    // it should be called only 40 times.
-    expect(visitingCallback).toHaveBeenCalledTimes(40);
-  });
-
-  it('should visit EQUAL array element specified number of times', () => {
-    SortTester.testAlgorithmTimeComplexity(
-      CountingSort,
-      equalArr,
-      EQUAL_ARRAY_VISITING_COUNT,
-    );
-  });
-
-  it('should visit SORTED array element specified number of times', () => {
-    SortTester.testAlgorithmTimeComplexity(
-      CountingSort,
-      sortedArr,
-      SORTED_ARRAY_VISITING_COUNT,
-    );
-  });
-
-  it('should visit NOT SORTED array element specified number of times', () => {
-    SortTester.testAlgorithmTimeComplexity(
-      CountingSort,
-      notSortedArr,
-      NOT_SORTED_ARRAY_VISITING_COUNT,
-    );
-  });
-
-  it('should visit REVERSE SORTED array element specified number of times', () => {
-    SortTester.testAlgorithmTimeComplexity(
-      CountingSort,
-      reverseArr,
-      REVERSE_SORTED_ARRAY_VISITING_COUNT,
-    );
-  });
-});
+test('The countingSort of the array [13, 18, 2, 15, 43, 11] is [2, 11, 13, 15, 18, 43]', () => {
+  const array = [13, 18, 2, 15, 43, 11]
+  const res = countingSort(array, 2, 43)
+  expect(res).toEqual([2, 11, 13, 15, 18, 43])
+})

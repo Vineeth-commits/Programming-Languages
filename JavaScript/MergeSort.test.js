@@ -1,64 +1,23 @@
-import MergeSort from '../MergeSort';
-import {
-  equalArr,
-  notSortedArr,
-  reverseArr,
-  sortedArr,
-  SortTester,
-} from '../../SortTester';
+import { merge, mergeSort } from '../MergeSort'
 
-// Complexity constants.
-const SORTED_ARRAY_VISITING_COUNT = 79;
-const NOT_SORTED_ARRAY_VISITING_COUNT = 102;
-const REVERSE_SORTED_ARRAY_VISITING_COUNT = 87;
-const EQUAL_ARRAY_VISITING_COUNT = 79;
+describe('merge', () => {
+  it('should merge arrays correctly', () => {
+    expect(merge([5, 4], [1, 2, 3])).toEqual([1, 2, 3, 5, 4])
+    expect(merge([], [1, 2])).toEqual([1, 2])
+    expect(merge([1, 2, 3], [1])).toEqual([1, 1, 2, 3])
+    expect(merge([], [])).toEqual([])
+  })
+})
 
 describe('MergeSort', () => {
-  it('should sort array', () => {
-    SortTester.testSort(MergeSort);
-  });
+  it('should work for empty arrays', () => {
+    expect(mergeSort([])).toEqual([])
+  })
 
-  it('should sort array with custom comparator', () => {
-    SortTester.testSortWithCustomComparator(MergeSort);
-  });
-
-  it('should do stable sorting', () => {
-    SortTester.testSortStability(MergeSort);
-  });
-
-  it('should sort negative numbers', () => {
-    SortTester.testNegativeNumbersSort(MergeSort);
-  });
-
-  it('should visit EQUAL array element specified number of times', () => {
-    SortTester.testAlgorithmTimeComplexity(
-      MergeSort,
-      equalArr,
-      EQUAL_ARRAY_VISITING_COUNT,
-    );
-  });
-
-  it('should visit SORTED array element specified number of times', () => {
-    SortTester.testAlgorithmTimeComplexity(
-      MergeSort,
-      sortedArr,
-      SORTED_ARRAY_VISITING_COUNT,
-    );
-  });
-
-  it('should visit NOT SORTED array element specified number of times', () => {
-    SortTester.testAlgorithmTimeComplexity(
-      MergeSort,
-      notSortedArr,
-      NOT_SORTED_ARRAY_VISITING_COUNT,
-    );
-  });
-
-  it('should visit REVERSE SORTED array element specified number of times', () => {
-    SortTester.testAlgorithmTimeComplexity(
-      MergeSort,
-      reverseArr,
-      REVERSE_SORTED_ARRAY_VISITING_COUNT,
-    );
-  });
-});
+  it('should sort arrays correctly', () => {
+    expect(mergeSort([5, 4])).toEqual([4, 5])
+    expect(mergeSort([8, 4, 10, 15, 9])).toEqual([4, 8, 9, 10, 15])
+    expect(mergeSort([1, 2, 3])).toEqual([1, 2, 3])
+    expect(mergeSort([10, 5, 3, 8, 2, 6, 4, 7, 9, 1])).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+  })
+})

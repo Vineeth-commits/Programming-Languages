@@ -1,58 +1,114 @@
-import LinkedList from '../linked-list/LinkedList';
+/* Queue
+* A Queue is a data structure that allows you to add an element to the end of
+* a list and remove the item at the front. A queue follows a FIFO (First In First Out)
+* system, where the first item to enter the queue is the first to be removed,
+* All these operation complexities are O(1).
+* This implementation following the linked list structure.
+*/
 
-export default class Queue {
-  constructor() {
-    // We're going to implement Queue based on LinkedList since the two
-    // structures are quite similar. Namely, they both operate mostly on
-    // the elements at the beginning and the end. Compare enqueue/dequeue
-    // operations of Queue with append/deleteHead operations of LinkedList.
-    this.linkedList = new LinkedList();
+class Queue {
+  #size
+
+  constructor () {
+    this.head = null
+    this.tail = null
+    this.#size = 0
+
+    return Object.seal(this)
+  }
+
+  get length () {
+    return this.#size
   }
 
   /**
-   * @return {boolean}
+   * @description - Add a value to the end of the queue
+   * @param {*} data
+   * @returns {number} - The current size of queue
    */
-  isEmpty() {
-    return !this.linkedList.head;
-  }
+  enqueue (data) {
+    const node = { data, next: null }
 
-  /**
-   * Read the element at the front of the queue without removing it.
-   * @return {*}
-   */
-  peek() {
-    if (this.isEmpty()) {
-      return null;
+    if (!this.head && !this.tail) {
+      this.head = node
+      this.tail = node
+    } else {
+      this.tail.next = node
+      this.tail = node
     }
 
-    return this.linkedList.head.value;
+    return ++this.#size
   }
 
   /**
-   * Add a new element to the end of the queue (the tail of the linked list).
-   * This element will be processed after all elements ahead of it.
-   * @param {*} value
+   * @description - Removes the value at the front of the queue
+   * @returns {*} - The first data of the queue
    */
-  enqueue(value) {
-    this.linkedList.append(value);
+  dequeue () {
+    if (this.isEmpty()) {
+      throw new Error('Queue is Empty')
+    }
+
+    const firstData = this.peekFirst()
+
+    this.head = this.head.next
+
+    if (!this.head) {
+      this.tail = null
+    }
+
+    this.#size--
+
+    return firstData
   }
 
   /**
-   * Remove the element at the front of the queue (the head of the linked list).
-   * If the queue is empty, return null.
-   * @return {*}
+   * @description - Return the item at the front of the queue
+   * @returns {*}
    */
-  dequeue() {
-    const removedHead = this.linkedList.deleteHead();
-    return removedHead ? removedHead.value : null;
+  peekFirst () {
+    if (this.isEmpty()) {
+      throw new Error('Queue is Empty')
+    }
+
+    return this.head.data
   }
 
   /**
-   * @param [callback]
-   * @return {string}
+   * @description - Return the item at the tail of the queue
+   * @returns {*}
    */
-  toString(callback) {
-    // Return string representation of the queue's linked list.
-    return this.linkedList.toString(callback);
+  peekLast () {
+    if (this.isEmpty()) {
+      throw new Error('Queue is Empty')
+    }
+
+    return this.tail.data
+  }
+
+  /**
+   * @description - Return the array of Queue
+   * @returns {Array<*>}
+   */
+  toArray () {
+    const array = []
+    let node = this.head
+
+    while (node) {
+      array.push(node.data)
+      node = node.next
+    }
+
+    return array
+  }
+
+  /**
+  * @description - Return is queue empty or not
+  * @returns {boolean}
+  */
+  isEmpty () {
+    return this.length === 0
   }
 }
+
+export default Queue

@@ -1,60 +1,48 @@
-import Sort from '../Sort';
+/*
+ * MergeSort implementation.
+ *
+ * Merge Sort is an algorithm where the main list is divided down into two half sized lists, which then have merge sort
+ * called on these two smaller lists recursively until there is only a sorted list of one.
+ *
+ * On the way up the recursive calls, the lists will be merged together inserting
+ * the smaller value first, creating a larger sorted list.
+ */
 
-export default class MergeSort extends Sort {
-  sort(originalArray) {
-    // Call visiting callback.
-    this.callbacks.visitingCallback(null);
+/**
+ * Sort and merge two given arrays.
+ *
+ * @param {Array} list1 Sublist to break down.
+ * @param {Array} list2 Sublist to break down.
+ * @return {Array} The merged list.
+ */
+export function merge (list1, list2) {
+  const results = []
+  let i = 0
+  let j = 0
 
-    // If array is empty or consists of one element then return this array since it is sorted.
-    if (originalArray.length <= 1) {
-      return originalArray;
+  while (i < list1.length && j < list2.length) {
+    if (list1[i] < list2[j]) {
+      results.push(list1[i++])
+    } else {
+      results.push(list2[j++])
     }
-
-    // Split array on two halves.
-    const middleIndex = Math.floor(originalArray.length / 2);
-    const leftArray = originalArray.slice(0, middleIndex);
-    const rightArray = originalArray.slice(middleIndex, originalArray.length);
-
-    // Sort two halves of split array
-    const leftSortedArray = this.sort(leftArray);
-    const rightSortedArray = this.sort(rightArray);
-
-    // Merge two sorted arrays into one.
-    return this.mergeSortedArrays(leftSortedArray, rightSortedArray);
   }
 
-  mergeSortedArrays(leftArray, rightArray) {
-    const sortedArray = [];
+  return results.concat(list1.slice(i), list2.slice(j))
+}
 
-    // Use array pointers to exclude old elements after they have been added to the sorted array.
-    let leftIndex = 0;
-    let rightIndex = 0;
+/**
+ * Break down the lists into smaller pieces to be merged.
+ *
+ * @param {Array} list List to be sorted.
+ * @return {Array} The sorted list.
+ */
+export function mergeSort (list) {
+  if (list.length < 2) return list
 
-    while (leftIndex < leftArray.length && rightIndex < rightArray.length) {
-      let minElement = null;
+  const listHalf = Math.floor(list.length / 2)
+  const subList1 = list.slice(0, listHalf)
+  const subList2 = list.slice(listHalf, list.length)
 
-      // Find the minimum element between the left and right array.
-      if (this.comparator.lessThanOrEqual(leftArray[leftIndex], rightArray[rightIndex])) {
-        minElement = leftArray[leftIndex];
-        // Increment index pointer to the right
-        leftIndex += 1;
-      } else {
-        minElement = rightArray[rightIndex];
-        // Increment index pointer to the right
-        rightIndex += 1;
-      }
-
-      // Add the minimum element to the sorted array.
-      sortedArray.push(minElement);
-
-      // Call visiting callback.
-      this.callbacks.visitingCallback(minElement);
-    }
-
-    // There will be elements remaining from either the left OR the right
-    // Concatenate the remaining elements into the sorted array
-    return sortedArray
-      .concat(leftArray.slice(leftIndex))
-      .concat(rightArray.slice(rightIndex));
-  }
+  return merge(mergeSort(subList1), mergeSort(subList2))
 }

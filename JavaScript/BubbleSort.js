@@ -1,38 +1,60 @@
-import Sort from '../Sort';
+/* Bubble Sort is an algorithm to sort an array. It
+*  compares adjacent element and swaps their position
+*  The big O on bubble sort in worst and best case is O(N^2).
+*  Not efficient.
+*  Somehow if the array is sorted or nearly sorted then we can optimize bubble sort by adding a flag.
+*
+*  In bubble sort, we keep iterating while something was swapped in
+*  the previous inner-loop iteration. By swapped I mean, in the
+*  inner loop iteration, we check each number if the number proceeding
+*  it is greater than itself, if so we swap them.
+*
+*  Wikipedia: https://en.wikipedia.org/wiki/Bubble_sort
+*  Animated Visual: https://www.toptal.com/developers/sorting-algorithms/bubble-sort
+*/
 
-export default class BubbleSort extends Sort {
-  sort(originalArray) {
-    // Flag that holds info about whether the swap has occur or not.
-    let swapped = false;
-    // Clone original array to prevent its modification.
-    const array = [...originalArray];
+/**
+ * Using 2 for loops.
+ */
+export function bubbleSort (items) {
+  const length = items.length
+  let noSwaps
 
-    for (let i = 1; i < array.length; i += 1) {
-      swapped = false;
-
-      // Call visiting callback.
-      this.callbacks.visitingCallback(array[i]);
-
-      for (let j = 0; j < array.length - i; j += 1) {
-        // Call visiting callback.
-        this.callbacks.visitingCallback(array[j]);
-
-        // Swap elements if they are in wrong order.
-        if (this.comparator.lessThan(array[j + 1], array[j])) {
-          [array[j], array[j + 1]] = [array[j + 1], array[j]];
-
-          // Register the swap.
-          swapped = true;
-        }
-      }
-
-      // If there were no swaps then array is already sorted and there is
-      // no need to proceed.
-      if (!swapped) {
-        return array;
+  for (let i = length; i > 0; i--) {
+    // flag for optimization
+    noSwaps = true
+    // Number of passes
+    for (let j = 0; j < (i - 1); j++) {
+      // Compare the adjacent positions
+      if (items[j] > items[j + 1]) {
+        // Swap the numbers
+        [items[j], items[j + 1]] = [items[j + 1], items[j]]
+        noSwaps = false
       }
     }
-
-    return array;
+    if (noSwaps) {
+      break
+    }
   }
+
+  return items
+}
+
+/**
+ * Using a while loop and a for loop.
+ */
+export function alternativeBubbleSort (arr) {
+  let swapped = true
+
+  while (swapped) {
+    swapped = false
+    for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i] > arr[i + 1]) {
+        [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]
+        swapped = true
+      }
+    }
+  }
+
+  return arr
 }

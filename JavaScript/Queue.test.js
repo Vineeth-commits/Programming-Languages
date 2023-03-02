@@ -1,65 +1,46 @@
-import Queue from '../Queue';
+import Queue from '../Queue'
 
-describe('Queue', () => {
-  it('should create empty queue', () => {
-    const queue = new Queue();
-    expect(queue).not.toBeNull();
-    expect(queue.linkedList).not.toBeNull();
-  });
+describe('Testing the Queue DS', () => {
+  const queue = new Queue()
 
-  it('should enqueue data to queue', () => {
-    const queue = new Queue();
+  it('Testing enqueue method', () => {
+    expect(queue.enqueue(1)).toBe(1)
+    expect(queue.enqueue(2)).toBe(2)
+    expect(queue.enqueue(8)).toBe(3)
+    expect(queue.enqueue(9)).toBe(4)
+  })
 
-    queue.enqueue(1);
-    queue.enqueue(2);
+  it('Testing length after enqueue', () => {
+    expect(queue.length).toBe(4)
+  })
 
-    expect(queue.toString()).toBe('1,2');
-  });
+  it('Testing peekFirst & peekLast methods', () => {
+    expect(queue.peekFirst()).toBe(1)
+    expect(queue.peekLast()).toBe(9)
+  })
 
-  it('should be possible to enqueue/dequeue objects', () => {
-    const queue = new Queue();
+  it('Testing toArray method', () => {
+    expect(queue.toArray()).toEqual([1, 2, 8, 9])
+  })
 
-    queue.enqueue({ value: 'test1', key: 'key1' });
-    queue.enqueue({ value: 'test2', key: 'key2' });
+  it('Testing dequeue method', () => {
+    expect(queue.dequeue()).toBe(1)
+    expect(queue.dequeue()).toBe(2)
+  })
 
-    const stringifier = (value) => `${value.key}:${value.value}`;
+  it('Testing length after dequeue', () => {
+    expect(queue.length).toBe(2)
+  })
 
-    expect(queue.toString(stringifier)).toBe('key1:test1,key2:test2');
-    expect(queue.dequeue().value).toBe('test1');
-    expect(queue.dequeue().value).toBe('test2');
-  });
+  it('Testing isEmpty method', () => {
+    const queue = new Queue()
+    expect(queue.isEmpty()).toBeTruthy()
 
-  it('should peek data from queue', () => {
-    const queue = new Queue();
+    queue.enqueue(1)
+    queue.enqueue(2)
+    queue.enqueue(8)
+    queue.enqueue(9)
 
-    expect(queue.peek()).toBeNull();
-
-    queue.enqueue(1);
-    queue.enqueue(2);
-
-    expect(queue.peek()).toBe(1);
-    expect(queue.peek()).toBe(1);
-  });
-
-  it('should check if queue is empty', () => {
-    const queue = new Queue();
-
-    expect(queue.isEmpty()).toBe(true);
-
-    queue.enqueue(1);
-
-    expect(queue.isEmpty()).toBe(false);
-  });
-
-  it('should dequeue from queue in FIFO order', () => {
-    const queue = new Queue();
-
-    queue.enqueue(1);
-    queue.enqueue(2);
-
-    expect(queue.dequeue()).toBe(1);
-    expect(queue.dequeue()).toBe(2);
-    expect(queue.dequeue()).toBeNull();
-    expect(queue.isEmpty()).toBe(true);
-  });
-});
+    expect(queue.isEmpty()).toBeFalsy()
+  })
+})

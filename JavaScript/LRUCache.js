@@ -1,153 +1,146 @@
-/* eslint-disable no-param-reassign, max-classes-per-file */
-
-/**
- * Simple implementation of the Doubly-Linked List Node
- * that is used in LRUCache class below.
- */
-class LinkedListNode {
-  /**
-   * Creates a doubly-linked list node.
-   * @param {string} key
-   * @param {any} val
-   * @param {LinkedListNode} prev
-   * @param {LinkedListNode} next
-   */
-  constructor(key, val, prev = null, next = null) {
-    this.key = key;
-    this.val = val;
-    this.prev = prev;
-    this.next = next;
-  }
-}
-
-/**
- * Implementation of the LRU (Least Recently Used) Cache
- * based on the HashMap and Doubly Linked List data-structures.
- *
- * Current implementation allows to have fast O(1) (in average) read and write operations.
- *
- * At any moment in time the LRU Cache holds not more that "capacity" number of items in it.
- */
 class LRUCache {
+  // LRU Cache to store a given capacity of data
+  #capacity
+
   /**
-   * Creates a cache instance of a specific capacity.
-   * @param {number} capacity
+   * @param {number} capacity - the capacity of LRUCache
+   * @returns {LRUCache} - sealed
    */
-  constructor(capacity) {
-    this.capacity = capacity; // How many items to store in cache at max.
-    this.nodesMap = {}; // The quick links to each linked list node in cache.
-    this.size = 0; // The number of items that is currently stored in the cache.
-    this.head = new LinkedListNode(); // The Head (first) linked list node.
-    this.tail = new LinkedListNode(); // The Tail (last) linked list node.
+  constructor (capacity) {
+    if (!Number.isInteger(capacity) || capacity < 0) {
+      throw new TypeError('Invalid capacity')
+    }
+
+    this.#capacity = ~~capacity
+    this.misses = 0
+    this.hits = 0
+    this.cache = new Map()
+
+    return Object.seal(this)
+  }
+
+  get info () {
+    return Object.freeze({
+      misses: this.misses,
+      hits: this.hits,
+      capacity: this.capacity,
+      size: this.size
+    })
+  }
+
+  get size () {
+    return this.cache.size
+  }
+
+  get capacity () {
+    return this.#capacity
+  }
+
+  set capacity (newCapacity) {
+    if (newCapacity < 0) {
+      throw new RangeError('Capacity should be greater than 0')
+    }
+
+    if (newCapacity < this.capacity) {
+      let diff = this.capacity - newCapacity
+
+      while (diff--) {
+        this.#removeLeastRecentlyUsed()
+      }
+    }
+
+    this.#capacity = newCapacity
   }
 
   /**
-   * Returns the cached value by its key.
-   * Time complexity: O(1) in average.
+ * delete oldest key existing in map by the help of iterator
+ */
+  #removeLeastRecentlyUsed () {
+    this.cache.delete(this.cache.keys().next().value)
+  }
+
+  /**
    * @param {string} key
-   * @returns {any}
+   * @returns {*}
    */
-  get(key) {
-    if (this.nodesMap[key] === undefined) return undefined;
-    const node = this.nodesMap[key];
-    this.promote(node);
-    return node.val;
+  has (key) {
+    key = String(key)
+
+    return this.cache.has(key)
   }
 
   /**
-   * Sets the value to cache by its key.
-   * Time complexity: O(1) in average.
    * @param {string} key
-   * @param {any} val
+   * @param {*} value
    */
-  set(key, val) {
-    if (this.nodesMap[key]) {
-      const node = this.nodesMap[key];
-      node.val = val;
-      this.promote(node);
-    } else {
-      const node = new LinkedListNode(key, val);
-      this.append(node);
+  set (key, value) {
+    key = String(key)
+    // Sets the value for the input key and if the key exists it updates the existing key
+    if (this.size === this.capacity) {
+      this.#removeLeastRecentlyUsed()
     }
+
+    this.cache.set(key, value)
   }
 
   /**
-   * Promotes the node to the end of the linked list.
-   * It means that the node is most frequently used.
-   * It also reduces the chance for such node to get evicted from cache.
-   * @param {LinkedListNode} node
+   * @param {string} key
+   * @returns {*}
    */
-  promote(node) {
-    this.evict(node);
-    this.append(node);
+  get (key) {
+    key = String(key)
+    // Returns the value for the input key. Returns null if key is not present in cache
+    if (this.cache.has(key)) {
+      const value = this.cache.get(key)
+
+      // refresh the cache to update the order of key
+      this.cache.delete(key)
+      this.cache.set(key, value)
+
+      this.hits++
+      return value
+    }
+
+    this.misses++
+    return null
   }
 
   /**
-   * Appends a new node to the end of the cache linked list.
-   * @param {LinkedListNode} node
+   * @param {JSON} json
+   * @returns {LRUCache}
    */
-  append(node) {
-    this.nodesMap[node.key] = node;
+  parse (json) {
+    const { misses, hits, cache } = JSON.parse(json)
 
-    if (!this.head.next) {
-      // First node to append.
-      this.head.next = node;
-      this.tail.prev = node;
-      node.prev = this.head;
-      node.next = this.tail;
-    } else {
-      // Append to an existing tail.
-      const oldTail = this.tail.prev;
-      oldTail.next = node;
-      node.prev = oldTail;
-      node.next = this.tail;
-      this.tail.prev = node;
+    this.misses += misses ?? 0
+    this.hits += hits ?? 0
+
+    for (const key in cache) {
+      this.set(key, cache[key])
     }
 
-    this.size += 1;
-
-    if (this.size > this.capacity) {
-      this.evict(this.head.next);
-    }
+    return this
   }
 
   /**
-   * Evicts (removes) the node from cache linked list.
-   * @param {LinkedListNode} node
+   * @param {number} indent
+   * @returns {JSON} - string
    */
-  evict(node) {
-    delete this.nodesMap[node.key];
-    this.size -= 1;
+  toString (indent) {
+    const replacer = (_, value) => {
+      if (value instanceof Set) {
+        return [...value]
+      }
 
-    const prevNode = node.prev;
-    const nextNode = node.next;
+      if (value instanceof Map) {
+        return Object.fromEntries(value)
+      }
 
-    // If one and only node.
-    if (prevNode === this.head && nextNode === this.tail) {
-      this.head.next = null;
-      this.tail.prev = null;
-      this.size = 0;
-      return;
+      return value
     }
 
-    // If this is a Head node.
-    if (prevNode === this.head) {
-      nextNode.prev = this.head;
-      this.head.next = nextNode;
-      return;
-    }
-
-    // If this is a Tail node.
-    if (nextNode === this.tail) {
-      prevNode.next = this.tail;
-      this.tail.prev = prevNode;
-      return;
-    }
-
-    // If the node is in the middle.
-    prevNode.next = nextNode;
-    nextNode.prev = prevNode;
+    return JSON.stringify(this, replacer, indent)
   }
 }
 
-export default LRUCache;
+export default LRUCache

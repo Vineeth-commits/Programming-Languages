@@ -1,48 +1,30 @@
-import Sort from '../Sort';
+/**
+ * @function QuickSort
+ * @description Quick sort is a comparison sorting algorithm that uses a divide and conquer strategy.
+ * @param {Integer[]} items - Array of integers
+ * @return {Integer[]} - Sorted array.
+ * @see [QuickSort](https://en.wikipedia.org/wiki/Quicksort)
+ */
+function quickSort (items) {
+  const length = items.length
 
-export default class QuickSort extends Sort {
-  /**
-   * @param {*[]} originalArray
-   * @return {*[]}
-   */
-  sort(originalArray) {
-    // Clone original array to prevent it from modification.
-    const array = [...originalArray];
-
-    // If array has less than or equal to one elements then it is already sorted.
-    if (array.length <= 1) {
-      return array;
-    }
-
-    // Init left and right arrays.
-    const leftArray = [];
-    const rightArray = [];
-
-    // Take the first element of array as a pivot.
-    const pivotElement = array.shift();
-    const centerArray = [pivotElement];
-
-    // Split all array elements between left, center and right arrays.
-    while (array.length) {
-      const currentElement = array.shift();
-
-      // Call visiting callback.
-      this.callbacks.visitingCallback(currentElement);
-
-      if (this.comparator.equal(currentElement, pivotElement)) {
-        centerArray.push(currentElement);
-      } else if (this.comparator.lessThan(currentElement, pivotElement)) {
-        leftArray.push(currentElement);
-      } else {
-        rightArray.push(currentElement);
-      }
-    }
-
-    // Sort left and right arrays.
-    const leftArraySorted = this.sort(leftArray);
-    const rightArraySorted = this.sort(rightArray);
-
-    // Let's now join sorted left array with center array and with sorted right array.
-    return leftArraySorted.concat(centerArray, rightArraySorted);
+  if (length <= 1) {
+    return items
   }
+  const PIVOT = items[0]
+  const GREATER = []
+  const LESSER = []
+
+  for (let i = 1; i < length; i++) {
+    if (items[i] > PIVOT) {
+      GREATER.push(items[i])
+    } else {
+      LESSER.push(items[i])
+    }
+  }
+
+  const sorted = [...quickSort(LESSER), PIVOT, ...quickSort(GREATER)]
+  return sorted
 }
+
+export { quickSort }
