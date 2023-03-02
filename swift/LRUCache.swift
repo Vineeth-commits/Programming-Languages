@@ -1,59 +1,91 @@
-//
-//  LRUCache.swift
-//  
-//
-//  Created by Kai Chen on 16/07/2017.
-//
-//
+/**
+ * Question Link: https://leetcode.com/problems/lru-cache/
+ * Primary idea: Use Doubly linked list and hash table to build the LRU cache.
+ * Time Complexity: O(1), Space Complexity: O(n)
+ *
+ */
 
-import Foundation
+class LRUCache {
+    
+    private let capacity: Int
+    private let head = Node(0, 0)
+    private let tail = Node(0, 0)
+    
+    private var keyNodeMap = [Int: Node]()
 
-public class LRUCache<KeyType: Hashable> {
-    private let maxSize: Int
-    private var cache: [KeyType: Any] = [:]
-    private var priority: LinkedList<KeyType> = LinkedList<KeyType>()
-    private var key2node: [KeyType: LinkedList<KeyType>.LinkedListNode<KeyType>] = [:]
-
-    public init(_ maxSize: Int) {
-        self.maxSize = maxSize
+    init(_ capacity: Int) {
+        self.capacity = capacity
+        
+        head.next = tail
+        tail.prev = head
     }
-
-    public func get(_ key: KeyType) -> Any? {
-        guard let val = cache[key] else {
-            return nil
+    
+    func get(_ key: Int) -> Int {
+        guard let node = keyNodeMap[key] else {
+            return -1
         }
-
-        remove(key)
-        insert(key, val: val)
-
-        return val
+        
+        remove(node)
+        moveToHead(node)
+        
+        return node.val
     }
-
-    public func set(_ key: KeyType, val: Any) {
-        if cache[key] != nil {
-            remove(key)
-        } else if priority.count >= maxSize, let keyToRemove = priority.last?.value {
-            remove(keyToRemove)
+    
+    func put(_ key: Int, _ value: Int) {
+        let node = Node(key, value)
+        
+        if let lastNode = keyNodeMap[key] {
+            remove(lastNode)
         }
-
-        insert(key, val: val)
+        
+        keyNodeMap[key] = node
+        moveToHead(node)
+        
+        if keyNodeMap.count > capacity {
+            keyNodeMap[tail.prev!.key] = nil
+            remove(tail.prev!)
+        }
     }
-
-    private func remove(_ key: KeyType) {
-        cache.removeValue(forKey: key)
-        guard let node = key2node[key] else {
-            return
-        }
-        priority.remove(node: node)
-        key2node.removeValue(forKey: key)
+    
+    private func remove(_ node: Node) {
+        let prev = node.prev
+        let post = node.next
+        
+        prev!.next = post
+        post!.prev = prev
+        
+        node.next = nil
+        node.prev = nil
     }
-
-    private func insert(_ key: KeyType, val: Any) {
-        cache[key] = val
-        priority.insert(key, atIndex: 0)
-        guard let first = priority.first else {
-            return
+    
+    private func moveToHead(_ node: Node) {
+        let first = head.next
+        
+        head.next = node
+        
+        node.prev = head
+        node.next = first
+        
+        first!.prev = node
+    }
+    
+    class Node {
+        let key: Int
+        var val: Int
+        
+        var prev: Node?
+        var next: Node?
+        
+        init(_ key: Int, _ val: Int) {
+            self.key = key
+            self.val = val
         }
-        key2node[key] = first
     }
 }
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * let obj = LRUCache(capacity)
+ * let ret_1: Int = obj.get(key)
+ * obj.put(key, value)
+ */
